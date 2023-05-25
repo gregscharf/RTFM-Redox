@@ -15,3 +15,5 @@ My current usage of this is to have it running in a tmux pane and when I need th
 - [ ] Update the database with newer commands for things like Bloodhound,Rubeus,Crackmapexec,Chisel,SSHuttle, various potato attacks, etc.
 - [ ] Add search capability for text based/markdown notes.  
     - Root directory for notes will be supplied in a CLI variable.
+- [ ] Termion screen refresh on MAC ARM causes screen to flicker with arrowing through commands.
+- [ ] Display command's comment and any other info after it has been selected.

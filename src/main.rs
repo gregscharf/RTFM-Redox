@@ -49,7 +49,7 @@ async fn main() {
     let (_width, height) = terminal_size().unwrap();
 
     let command_output: String = execute_command(&db, &"help".to_string()).await;
-    write_output(&mut stdout, height, command_output);
+    write_output(&mut stdout, command_output);
   
     loop {
         let mut prompt = "redox:";  
@@ -60,7 +60,7 @@ async fn main() {
             color::Fg(color::Cyan), 
             prompt, 
             color::Fg(color::Reset));
-        // write_output(&mut stdout, height, formprompt);
+        // write_output(&mut stdout, formprompt);
         write!(stdout, "{}{}{}{}{}", 
                 cursor::Goto(1, height), 
                 formprompt, 
@@ -85,6 +85,7 @@ async fn main() {
                     .expect("Failed to write to stdout");
                     if search_mode  {
                         results.clear();
+                        selected_result_index = 0;
                         let command_output: String;
                         
                         if query.len() > 0 { 
@@ -93,7 +94,7 @@ async fn main() {
                         } else {
                             command_output = String::new();
                         }
-                        write_output(&mut stdout, height, command_output);                           
+                        write_output(&mut stdout, command_output);                           
                     } 
             }
             Ok(Key::Up) => {  // Move up in results  
@@ -104,7 +105,7 @@ async fn main() {
                 if results.len() > 0 {                   
                     if selected_result_index > 0 {
                         selected_result_index -= 1;
-                        highlight_search_result(&mut stdout,selected_result_index, height, &mut results);    
+                        highlight_search_result(&mut stdout,selected_result_index, &mut results);    
                     }
                 }
             }
@@ -113,7 +114,7 @@ async fn main() {
                     results_selection_mode = true;
                     if selected_result_index < results.len() - 1 {
                         selected_result_index += 1;
-                        highlight_search_result(&mut stdout,selected_result_index, height, &mut results); 
+                        highlight_search_result(&mut stdout,selected_result_index, &mut results); 
                     }
                 }
             }            
@@ -123,7 +124,7 @@ async fn main() {
                 if let Ok(text) = clipboard.get_contents() {
                     query.push_str(text.as_str());
                     let command = format!("{}", query);
-                    write_output(&mut stdout, height, command); 
+                    write_output(&mut stdout, command); 
                 } 
             },            
             Ok(Key::Char(c)) if c != '\n'  => { 
@@ -138,7 +139,7 @@ async fn main() {
                             let mut command_output = String::new();
                             let command = format!("search {}", query);
                             (command_output, results) = execute_search_command(&db, &command).await;
-                            write_output(&mut stdout, height, command_output);                           
+                            write_output(&mut stdout, command_output);                           
                         }
                     }
             }            
@@ -159,13 +160,13 @@ async fn main() {
                     let mut clipboard = ClipboardContext::new().unwrap();
                     clipboard.set_contents(results[selected_result_index].to_owned());
                     command_output = format!("Copied: {} to clipboard",results[selected_result_index]);
-                    write_output(&mut stdout, height, command_output);
+                    write_output(&mut stdout, command_output);
                 } else if query.starts_with("search") {
                     (command_output,results) = execute_search_command(&db, &query).await;
-                    write_output(&mut stdout, height, command_output);
+                    write_output(&mut stdout, command_output);
                 } else {
                     command_output = execute_command(&db, &query).await;
-                    write_output(&mut stdout, height, command_output);
+                    write_output(&mut stdout, command_output);
                 }                
                 query.clear();
             }

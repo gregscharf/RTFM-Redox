@@ -8,10 +8,10 @@ My current usage of this is to have it running in a tmux pane and when I need th
 05-25-23: This is still very rough but it is at a point where it is a functional proof of concept.  Currently you can add commands to the database from the CLI, search with the 'search' command or quick search with ctrl+r similar to searching through your terminal history.  Once results are returned you can use the up/down arrow keys to highlight a command and then press return to copy that command to your clipboard.  
 
 TODO
--[ ] Add related commands associated with a command
+- [ ] Add related commands associated with a command
     - In the full search output these would also be listed out under related commands
--[ ] Implement RTFM's solution for adding creating/updating the database
--[ ] Set variables for replacement of things like Remote Host, Local Host, Local Port, etc similar to msfconsole.
--[ ] Update the database with newer commands for things like Bloodhound,Rubeus,Crackmapexec,Chisel,SSHuttle, various potato attacks, etc.
--[ ] Add search capability for text based/markdown notes.  
+- [ ] Implement RTFM's solution for adding creating/updating the database
+- [ ] Set variables for replacement of things like Remote Host, Local Host, Local Port, etc similar to msfconsole.
+- [ ] Update the database with newer commands for things like Bloodhound,Rubeus,Crackmapexec,Chisel,SSHuttle, various potato attacks, etc.
+- [ ] Add search capability for text based/markdown notes.  
     - Root directory for notes will be supplied in a CLI variable.

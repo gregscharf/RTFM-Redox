@@ -1,16 +1,15 @@
 mod console_view;
-use console_view::{highlight_search_result,write_output};
+use console_view::{highlight_search_result,write_output,update_prompt};
 mod execute_command; 
 use execute_command::{execute_command,execute_search_command};
-use sqlx::{migrate::MigrateDatabase, FromRow, Row, Sqlite, SqlitePool};
-use std::io::{Write, stdout, stdin};
+use sqlx::{migrate::MigrateDatabase, Sqlite, SqlitePool};
+use std::io::{Write, stdout};
 use termion::event::Key;
 use termion::input::TermRead;
-use termion::raw::{IntoRawMode, RawTerminal};
+use termion::raw::{IntoRawMode};
 use termion::{color, cursor, terminal_size};
 use clipboard::{ClipboardContext, ClipboardProvider};
-use x11_clipboard::{Clipboard};
-
+// use x11_clipboard::{Clipboard};
 
 const DB_URL: &str = "sqlite://snips.db";
 
@@ -39,8 +38,8 @@ async fn main() {
     let mut search_mode: bool = false;
     
     // Set up the scrolling output buffer
-    let mut output: Vec<String> = vec![];
-    let mut total_output: i32 = 1;
+    // let mut output: Vec<String> = vec![];
+    // let mut total_output: i32 = 1;
     // let mut output_start = 0;
 
     let mut selected_result_index: usize = 0;
@@ -52,23 +51,11 @@ async fn main() {
     write_output(&mut stdout, command_output);
   
     loop {
-        let mut prompt = "redox:";  
-        if search_mode {
-            prompt = "redox(find):";
+        let mut prompt = "redOx:";  
+        if search_mode { 
+            prompt = "redOx(find):";
         }
-        let formprompt = format!("{}{}{}", 
-            color::Fg(color::Cyan), 
-            prompt, 
-            color::Fg(color::Reset));
-        // write_output(&mut stdout, formprompt);
-        write!(stdout, "{}{}{}{}{}", 
-                cursor::Goto(1, height), 
-                formprompt, 
-                query,
-                cursor::Goto(prompt.len() as u16 + query.len() as u16 + 1, height),
-                termion::cursor::BlinkingBlock)
-                .unwrap();
-        stdout.flush().unwrap();
+        update_prompt(&mut stdout, prompt, &query);
 
         let key = std::io::stdin().keys().next().unwrap();
 
@@ -84,8 +71,8 @@ async fn main() {
                     termion::clear::AfterCursor)
                     .expect("Failed to write to stdout");
                     if search_mode  {
-                        results.clear();
-                        selected_result_index = 0;
+                        results.clear(); 
+                        results_selection_mode = false;                      
                         let command_output: String;
                         
                         if query.len() > 0 { 
@@ -111,6 +98,11 @@ async fn main() {
             }
             Ok(Key::Down) => {// Move down in results             
                 if results.len() > 0 {
+                    if results_selection_mode == false && results.len() > 0{
+                        results_selection_mode = true;
+                        selected_result_index = 0;
+                    }  
+
                     results_selection_mode = true;
                     if selected_result_index < results.len() - 1 {
                         selected_result_index += 1;
@@ -159,8 +151,9 @@ async fn main() {
                 if results_selection_mode == true {
                     let mut clipboard = ClipboardContext::new().unwrap();
                     clipboard.set_contents(results[selected_result_index].to_owned());
-                    command_output = format!("Copied: {} to clipboard",results[selected_result_index]);
+                    command_output = format!("Copied: {} to clipboard\n\r",results[selected_result_index]);
                     write_output(&mut stdout, command_output);
+                    results_selection_mode == false;
                 } else if query.starts_with("search") {
                     (command_output,results) = execute_search_command(&db, &query).await;
                     write_output(&mut stdout, command_output);

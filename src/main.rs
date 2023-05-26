@@ -4,19 +4,28 @@ use console_view::{
         write_output,
         update_prompt,
         display_selectable_list,
-        display_error, clear_display};
+        display_error, clear_display
+    };
 mod execute_command; 
-use execute_command::{execute_command,search_commands, command};
-use sqlx::{migrate::MigrateDatabase, Sqlite, SqlitePool};
+use execute_command::{
+        execute_command,
+        search_commands, 
+        command
+    };
+use sqlx::{
+        migrate::MigrateDatabase, 
+        Sqlite, SqlitePool};
 use std::io::stdout;
 use termion::event::Key;
 use termion::input::TermRead;
-use termion::raw::{IntoRawMode};
+use termion::raw::IntoRawMode;
 use termion::color;
-use clipboard::{ClipboardContext, ClipboardProvider};
+use clipboard::{
+        ClipboardContext, 
+        ClipboardProvider
+    };
 
 const DB_URL: &str = "sqlite://snips.db";
-
 
 #[tokio::main]
 async fn main() {
@@ -57,7 +66,6 @@ async fn main() {
     write_output(&mut stdout, command_output);
   
     loop {
-
         let mut selected_command: String = String::from("");
         let mut current_mode: String = String::from("");
         if command_history.len() > 0 {
@@ -185,7 +193,7 @@ async fn main() {
                         color::Fg(color::Reset),
                         color::Bg(color::Reset));
                     write_output(&mut stdout, command_output);
-                    results_selection_mode == false;
+                    results_selection_mode = false;
                     search_mode = false;
                 } else if query.starts_with("history") {
                     if command_history.len() > 0 {
@@ -198,8 +206,9 @@ async fn main() {
                     }
                 } else if query.starts_with("info") {
                     if command_history.len() > 0 {
-                        command_output = format!("Command id: {}\n\rComment: {}\n\rCommand: {}\n\r",
-                        command_history[selected_command_in_history].cmd_id,
+                        command_output = format!("Command id: {}\n\rAuthor: {}\n\rComment: {}\n\rCommand: {}\n\r",
+                        command_history[selected_command_in_history].cmd_id,                  
+                        command_history[selected_command_in_history].author,
                         command_history[selected_command_in_history].cmnt,                  
                         command_history[selected_command_in_history].cmd);
                         write_output(&mut stdout, command_output); 

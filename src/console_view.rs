@@ -1,7 +1,11 @@
-use termion::raw::{RawTerminal};
-use termion::{color, cursor, terminal_size};
+use termion::raw::RawTerminal;
+use termion::{
+        color, 
+        cursor, 
+        terminal_size
+    };
 use std::io::Stdout;
-use std::io::{Write};
+use std::io::Write;
 use crate::execute_command::command::Command;
 
 pub fn highlight_search_result(stdout: &mut RawTerminal<Stdout>, selected_index: usize, results: &mut Vec<Command>) {
@@ -52,7 +56,7 @@ pub fn display_error(stdout: &mut RawTerminal<Stdout>, error_message: String){
 
 pub fn write_output(stdout: &mut RawTerminal<Stdout>, console_output: String) {
     let (_width, height) = terminal_size().unwrap();
-    write!(stdout,"{}{}{}{}", 
+    write!(stdout,"{}{}{}{}\n\r", 
         termion::clear::All,
         cursor::Goto(1, height - console_output.lines().count() as u16),
         console_output,

@@ -1,12 +1,8 @@
-use sqlx::{SqlitePool,Row};
-use termion::{color};
-use termion::raw::{RawTerminal};
+use sqlx::SqlitePool;
+use termion::raw::RawTerminal;
 use std::io::Stdout;
 use crate::console_view::display_error;
 use crate::console_view::display_selectable_list;
-
-// use crate::Command;
-
 
 pub mod command {
     use sqlx::{Row};

@@ -12,7 +12,7 @@ My current usage of this is to have it running in a tmux pane and when I need th
 - [ ] Display command's comment and any other info after it has been selected.
 - [ ] Add related commands associated with a command
     - In the full search output these would also be listed out under related commands
-- [ ] Implement [RTFM](https://github.com/leostat/rtfm)'s solution for adding creating/updating the database
+- [ ] Implement [RTFM](https://github.com/leostat/rtfm)'s solution for creating/updating the database
 - [ ] Update the database with newer commands for things like Bloodhound,Rubeus,Crackmapexec,Chisel,SSHuttle, various potato attacks, etc.
 - [ ] Add search capability for text based/markdown notes.  
     - Root directory for notes will be supplied in a CLI variable.
@@ -20,4 +20,4 @@ My current usage of this is to have it running in a tmux pane and when I need th
 ## To Fix
 - [ ] Add buffer to scroll through search output that doesn't fit within terminal windows.
     - Current behavior is unhandled and will crash the application
-- [ ] Termion screen refresh on MAC ARM causes screen to flicker with arrowing through commands.
+- [ ] Termion screen refresh on MAC ARM causes screen to flicker when arrowing through commands.

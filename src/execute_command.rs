@@ -1,25 +1,66 @@
 use sqlx::{SqlitePool,Row};
 use termion::{color};
+// use crate::Command;
 
-pub async fn execute_search_command(db: &SqlitePool, command: &String) -> (String, Vec<String>){
-        let mut results: Vec<String> = Vec::new();            
-        let start_index: usize = "search".len() + 1;
-        let search_term: String = format!("{}{}{}","%",&command[start_index..],"%");            
-        let rows = sqlx::query(
-            "SELECT CmdID, Cmd, cmnt 
-                FROM TblCommand 
-                WHERE Cmd LIKE ? LIMIT 25",
-            )
-            .bind(search_term)
-            .fetch_all(db)
-            .await
-            .unwrap();
+pub mod command {
+    use sqlx::{Row};
 
-        for (_idx, row) in rows.iter().enumerate() {
-            results.push(row.get::<String, &str>("Cmd"));
+    pub struct Command {
+        pub cmd_id: i32,
+        pub cmd: String,
+        pub cmnt: String,
+        pub author: String,
+    }
+
+    impl Command {
+        pub fn from_row(row: &sqlx::sqlite::SqliteRow) -> Result<Self, sqlx::Error> {
+            let cmd_id: i32 = row.get("CmdID");
+            let cmd: String = row.get("Cmd");
+            let cmnt: String = row.get("cmnt");
+            let author: String = row.get("author");
+            Ok(Command { cmd_id, cmd, cmnt, author })
         }
-        let mut query_output = String::new();
+    }
+}
 
+async fn fetch_commands(db: &sqlx::SqlitePool, search_term: String) -> Result<Vec<command::Command>, sqlx::Error> {
+    let rows = sqlx::query(
+        "SELECT CmdID, Cmd, cmnt, author 
+        FROM TblCommand 
+        WHERE Cmd LIKE ? LIMIT 25",   
+        ).bind(search_term).
+        fetch_all(db)
+        .await?;
+
+    let commands: Result<Vec<command::Command>, sqlx::Error> = rows.iter().map(|row| command::Command::from_row(row)).collect();
+
+    commands
+}
+
+pub async fn search_commands(db: &SqlitePool, command: &String) -> (String, Vec<command::Command>){
+        let mut results: Vec<command::Command> = Vec::new();         
+        let start_index: usize = "search ".len();
+        let search_term: String = format!("{}{}{}","%",&command[start_index..],"%");            
+
+        let commands:Result<Vec<command::Command>,_>  = fetch_commands(&db, search_term).await;
+        match commands {
+            Ok(commands) => {
+                for command in commands.iter() {
+                    let new_command = command::Command {
+                        cmd_id: command.cmd_id,
+                        cmd: command.cmd.to_owned(),
+                        cmnt: command.cmnt.to_owned(),
+                        author: command.author.to_owned(),
+                    };
+                    results.push(new_command);
+                }
+            }
+            Err(err) => {
+                eprintln!("Error: {:?}", err);
+            }
+        }
+
+        let mut query_output = String::new();
         if !results.is_empty() {
             query_output = format!("{}{}{}{}{}",
             color::Bg(color::White),
@@ -28,7 +69,10 @@ pub async fn execute_search_command(db: &SqlitePool, command: &String) -> (Strin
             color::Fg(color::Reset),
             color::Bg(color::Reset));            
             for (i, command) in results.iter().enumerate() {
-                query_output += format!("({}) - {}\n\r",i,command).as_str();
+                query_output += format!("({}) - {}\n\r",
+                    i,
+                    command.cmd)
+                    .as_str();
             }
 
         } else {
@@ -38,20 +82,13 @@ pub async fn execute_search_command(db: &SqlitePool, command: &String) -> (Strin
                     color::Fg(color::Reset));
         }
         return (query_output,results);
+
 }
 
 pub async fn execute_command(db: &SqlitePool, command: &String) -> String{
     let output;
     match command.as_str() {
-        "open" => {
-            // let file_path = Select::new()
-            // .with_prompt("Select a file")
-            // .show_hidden(true)
-            // .can_select_directories(true)
-            // .default("my_file.txt")
-            // .interact()?;
-            // let command_output: String = format!("You selected file: {}\n\r",file_path.display());
-            // return command_output;
+        s if s.starts_with("open") => {
             output = "Open";
         }
         s if s.starts_with("use") => {
@@ -59,11 +96,11 @@ pub async fn execute_command(db: &SqlitePool, command: &String) -> String{
         }                
         s if s.starts_with("help") => {
             if command.contains("add") {
-                output = "To add a command to the database\n\r'add -c command [optional: -d comment"; 
+                output = "To add a command to the database\n\r'add -c command [optional: -d comment]"; 
             } else if command.contains("search"){
-                output = "ctrl+r to enter quick search mode to find matching commands as you type.\n\rEsc to exit search mode.\n\rOr use 'search' command followed by a term to search results.";             
+                output = "Ctrl+r to enter quick search mode to find matching commands as you type.\n\rEsc to exit search mode.\n\rOr use 'search' command followed by a term to search results.";             
             } else {
-                output = "ctrl+c to exit.\n\rctrl+v to paste from clipboard\n\rctrl+r to enter search mode to find syntax.\n\rEsc to exit search mode."; 
+                output = "Type 'exit' or Ctrl+c to exit.\n\rCtrl+v to paste from clipboard\n\rCtrl+r to enter search mode and then type to find syntax.\n\rEsc to exit search mode."; 
             }
         },
         s if s.starts_with("add") => {

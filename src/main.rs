@@ -1,17 +1,17 @@
 mod console_view;
 use console_view::{highlight_search_result,write_output,update_prompt};
 mod execute_command; 
-use execute_command::{execute_command,execute_search_command};
+use execute_command::{execute_command,search_commands,command};
 use sqlx::{migrate::MigrateDatabase, Sqlite, SqlitePool};
 use std::io::{Write, stdout};
 use termion::event::Key;
 use termion::input::TermRead;
 use termion::raw::{IntoRawMode};
-use termion::{color, cursor, terminal_size};
+use termion::{color};
 use clipboard::{ClipboardContext, ClipboardProvider};
-// use x11_clipboard::{Clipboard};
 
 const DB_URL: &str = "sqlite://snips.db";
+
 
 #[tokio::main]
 async fn main() {
@@ -34,7 +34,7 @@ async fn main() {
 
     // Initialize the search query and search results
     let mut query: String = String::new();
-    let mut results: Vec<String> = Vec::new();
+    let mut results: Vec<command::Command> = Vec::new();
     let mut search_mode: bool = false;
     
     // Set up the scrolling output buffer
@@ -44,8 +44,6 @@ async fn main() {
 
     let mut selected_result_index: usize = 0;
     let mut results_selection_mode: bool = false;
-
-    let (_width, height) = terminal_size().unwrap();
 
     let command_output: String = execute_command(&db, &"help".to_string()).await;
     write_output(&mut stdout, command_output);
@@ -77,7 +75,7 @@ async fn main() {
                         
                         if query.len() > 0 { 
                             let command = format!("search {}", query);
-                            (command_output, results) = execute_search_command(&db, &command).await;
+                            (command_output, results) = search_commands(&db, &command).await;
                         } else {
                             command_output = String::new();
                         }
@@ -85,11 +83,12 @@ async fn main() {
                     } 
             }
             Ok(Key::Up) => {  // Move up in results  
-                if results_selection_mode == false && results.len() > 0{
-                    results_selection_mode = true;
-                    selected_result_index = results.len();
-                }             
-                if results.len() > 0 {                   
+                if results.len() > 0 { 
+                    if results_selection_mode == false {
+                        results_selection_mode = true;
+                        selected_result_index = results.len();
+                    }             
+                  
                     if selected_result_index > 0 {
                         selected_result_index -= 1;
                         highlight_search_result(&mut stdout,selected_result_index, &mut results);    
@@ -98,12 +97,11 @@ async fn main() {
             }
             Ok(Key::Down) => {// Move down in results             
                 if results.len() > 0 {
-                    if results_selection_mode == false && results.len() > 0{
+                    if results_selection_mode == false {
                         results_selection_mode = true;
                         selected_result_index = 0;
                     }  
 
-                    results_selection_mode = true;
                     if selected_result_index < results.len() - 1 {
                         selected_result_index += 1;
                         highlight_search_result(&mut stdout,selected_result_index, &mut results); 
@@ -130,13 +128,13 @@ async fn main() {
                             results.clear();
                             let mut command_output = String::new();
                             let command = format!("search {}", query);
-                            (command_output, results) = execute_search_command(&db, &command).await;
+                            (command_output, results) = search_commands(&db, &command).await;
                             write_output(&mut stdout, command_output);                           
                         }
                     }
             }            
             Ok(Key::Ctrl('c')) => {// Exit the CLI
-                break
+                break;
             }
             Ok(Key::Esc)  => {
                 search_mode = false;
@@ -150,13 +148,22 @@ async fn main() {
                 let mut command_output: String = String::new();
                 if results_selection_mode == true {
                     let mut clipboard = ClipboardContext::new().unwrap();
-                    clipboard.set_contents(results[selected_result_index].to_owned());
-                    command_output = format!("Copied: {} to clipboard\n\r",results[selected_result_index]);
+                    clipboard.set_contents(results[selected_result_index].cmd.to_owned());
+                    command_output = format!("Command id: {}\n\r{}\n\rCopied: {}{}{}{}{} to clipboard\n\r",
+                        results[selected_result_index].cmd_id,
+                        results[selected_result_index].cmnt,                  
+                        color::Bg(color::White),
+                        color::Fg(color::Black),
+                        results[selected_result_index].cmd,
+                        color::Fg(color::Reset),
+                        color::Bg(color::Reset));
                     write_output(&mut stdout, command_output);
                     results_selection_mode == false;
                 } else if query.starts_with("search") {
-                    (command_output,results) = execute_search_command(&db, &query).await;
+                    (command_output,results) = search_commands(&db, &query).await;
                     write_output(&mut stdout, command_output);
+                } else if query.starts_with("exit") {
+                    break;
                 } else {
                     command_output = execute_command(&db, &query).await;
                     write_output(&mut stdout, command_output);

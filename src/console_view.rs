@@ -2,8 +2,9 @@ use termion::raw::{RawTerminal};
 use termion::{color, cursor, terminal_size};
 use std::io::Stdout;
 use std::io::{Write};
+use crate::execute_command::command::Command;
 
-pub fn highlight_search_result(stdout: &mut RawTerminal<Stdout>, selected_index: usize, results: &mut Vec<String>) {
+pub fn highlight_search_result(stdout: &mut RawTerminal<Stdout>, selected_index: usize, results: &mut Vec<Command>) {
     let mut console_output = format!("{}{}{}{}{}",
         color::Bg(color::White),
         color::Fg(color::Black),
@@ -17,11 +18,11 @@ pub fn highlight_search_result(stdout: &mut RawTerminal<Stdout>, selected_index:
                 color::Bg(color::Cyan),
                 color::Fg(color::Black),
                 i,
-                command,
+                command.cmd,
                 color::Fg(color::Reset),
                 color::Bg(color::Reset)).as_str();
         } else {
-            console_output += format!("({}) - {}\n\r",i,command).as_str();
+            console_output += format!("({}) - {}\n\r",i,command.cmd).as_str();
         }
     }   
     write_output(stdout, console_output);  

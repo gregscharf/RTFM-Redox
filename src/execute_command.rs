@@ -1,11 +1,18 @@
 use sqlx::{SqlitePool,Row};
 use termion::{color};
+use termion::raw::{RawTerminal};
+use std::io::Stdout;
+use crate::console_view::display_error;
+use crate::console_view::display_selectable_list;
+
 // use crate::Command;
+
 
 pub mod command {
     use sqlx::{Row};
 
-    pub struct Command {
+    #[derive(Clone)]
+        pub struct Command {
         pub cmd_id: i32,
         pub cmd: String,
         pub cmnt: String,
@@ -37,7 +44,7 @@ async fn fetch_commands(db: &sqlx::SqlitePool, search_term: String) -> Result<Ve
     commands
 }
 
-pub async fn search_commands(db: &SqlitePool, command: &String) -> (String, Vec<command::Command>){
+pub async fn search_commands(db: &SqlitePool, stdout: &mut RawTerminal<Stdout>, command: &String) -> Vec<command::Command>{
         let mut results: Vec<command::Command> = Vec::new();         
         let start_index: usize = "search ".len();
         let search_term: String = format!("{}{}{}","%",&command[start_index..],"%");            
@@ -60,29 +67,12 @@ pub async fn search_commands(db: &SqlitePool, command: &String) -> (String, Vec<
             }
         }
 
-        let mut query_output = String::new();
         if !results.is_empty() {
-            query_output = format!("{}{}{}{}{}",
-            color::Bg(color::White),
-            color::Fg(color::Black),
-            "Select a result with the up/down arrow keys. Press enter to copy to the clipboard\n\r",
-            color::Fg(color::Reset),
-            color::Bg(color::Reset));            
-            for (i, command) in results.iter().enumerate() {
-                query_output += format!("({}) - {}\n\r",
-                    i,
-                    command.cmd)
-                    .as_str();
-            }
-
+            display_selectable_list(stdout, &mut results);
         } else {
-            query_output = format!("{}{}{}",
-                    color::Fg(color::Red),
-                    "Not Found\n\r",
-                    color::Fg(color::Reset));
+            display_error(stdout, String::from("Not Found"));
         }
-        return (query_output,results);
-
+        return results;
 }
 
 pub async fn execute_command(db: &SqlitePool, command: &String) -> String{
@@ -91,6 +81,9 @@ pub async fn execute_command(db: &SqlitePool, command: &String) -> String{
         s if s.starts_with("open") => {
             output = "Open";
         }
+        "info" => {
+            output = "Info";
+        }
         s if s.starts_with("use") => {
             output = "Use";
         }                
@@ -98,9 +91,9 @@ pub async fn execute_command(db: &SqlitePool, command: &String) -> String{
             if command.contains("add") {
                 output = "To add a command to the database\n\r'add -c command [optional: -d comment]"; 
             } else if command.contains("search"){
-                output = "Ctrl+r to enter quick search mode to find matching commands as you type.\n\rEsc to exit search mode.\n\rOr use 'search' command followed by a term to search results.";             
+                output = "Ctrl+r -- to enter quick search mode to find matching commands as you type.\n\rEsc to exit search mode.\n\rOr use 'search' command followed by a term to search results.";             
             } else {
-                output = "Type 'exit' or Ctrl+c to exit.\n\rCtrl+v to paste from clipboard\n\rCtrl+r to enter search mode and then type to find syntax.\n\rEsc to exit search mode."; 
+                output = "exit or Ctrl+c\t-- Exit redOx.\n\rCtrl+v\t\t-- Paste from clipboard\n\rCtrl+r\t\t-- Enter search mode and then start typing to find commands.\n\rEsc\t\t-- Exit current mode.\n\rhistory\t\t-- Display selectable history of already selected commands\n\rinfo\t\t-- Display info on currently selected command.\n\r"; 
             }
         },
         s if s.starts_with("add") => {

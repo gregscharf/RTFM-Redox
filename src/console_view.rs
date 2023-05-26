@@ -17,15 +17,37 @@ pub fn highlight_search_result(stdout: &mut RawTerminal<Stdout>, selected_index:
             console_output += format!("{}{}({}) - {}{}{}\n\r",
                 color::Bg(color::Cyan),
                 color::Fg(color::Black),
-                i,
+                command.cmd_id,
                 command.cmd,
                 color::Fg(color::Reset),
                 color::Bg(color::Reset)).as_str();
         } else {
-            console_output += format!("({}) - {}\n\r",i,command.cmd).as_str();
+            console_output += format!("({}) - {}\n\r",command.cmd_id,command.cmd).as_str();
         }
     }   
     write_output(stdout, console_output);  
+}
+
+pub fn display_selectable_list(stdout: &mut RawTerminal<Stdout>, selectable_list: &mut Vec<Command>){
+    let mut console_output = format!("{}{}{}{}{}",
+        color::Bg(color::White),
+        color::Fg(color::Black),
+        "Select a result with the up/down arrow keys. Press enter to copy to the clipboard\n\r",
+        color::Fg(color::Reset),
+        color::Bg(color::Reset));      
+              
+    for command in selectable_list {
+        console_output += format!("({}) - {}\n\r",command.cmd_id,command.cmd).as_str();
+    }   
+    write_output(stdout, console_output); 
+}
+
+pub fn display_error(stdout: &mut RawTerminal<Stdout>, error_message: String){
+    let error_output = format!("{}{}{}\n\r",
+            color::Fg(color::Red),
+            error_message,
+            color::Fg(color::Reset));
+    write_output(stdout, error_output); 
 }
 
 pub fn write_output(stdout: &mut RawTerminal<Stdout>, console_output: String) {
@@ -38,11 +60,16 @@ pub fn write_output(stdout: &mut RawTerminal<Stdout>, console_output: String) {
         .expect("Failed to write to stdout"); 
 }
 
-pub fn update_prompt(stdout: &mut RawTerminal<Stdout>, prompt: &str, query: &String){
+pub fn update_prompt(stdout: &mut RawTerminal<Stdout>, selected_command: &String, current_mode: &String, query: &String){
     let (_width, height) = terminal_size().unwrap();
-
-    write!(stdout, "{}{}{}{}{}{}{}", 
+    let mut prompt: String = String::from("redOx");
+    prompt += selected_command;
+    prompt += current_mode;
+    prompt += ":"; 
+    write!(stdout, "{}{}{}{}{}{}{}{}{}", 
         cursor::Goto(1, height), 
+        termion::cursor::Left(prompt.len() as u16 + query.len() as u16 + 1), 
+        termion::clear::AfterCursor,         
         color::Fg(color::Cyan), 
         prompt, 
         color::Fg(color::Reset),

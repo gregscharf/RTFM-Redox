@@ -1,7 +1,12 @@
 mod console_view;
-use console_view::{highlight_search_result,write_output,update_prompt};
+use console_view::{
+        highlight_search_result,
+        write_output,
+        update_prompt,
+        display_selectable_list,
+        display_error};
 mod execute_command; 
-use execute_command::{execute_command,search_commands,command};
+use execute_command::{execute_command,search_commands, command};
 use sqlx::{migrate::MigrateDatabase, Sqlite, SqlitePool};
 use std::io::{Write, stdout};
 use termion::event::Key;
@@ -37,6 +42,9 @@ async fn main() {
     let mut results: Vec<command::Command> = Vec::new();
     let mut search_mode: bool = false;
     
+    //Create a history for selected commands
+    let mut command_history: Vec<command::Command> = Vec::new();
+    let mut selected_command_in_history: usize = 0;
     // Set up the scrolling output buffer
     // let mut output: Vec<String> = vec![];
     // let mut total_output: i32 = 1;
@@ -49,38 +57,35 @@ async fn main() {
     write_output(&mut stdout, command_output);
   
     loop {
-        let mut prompt = "redOx:";  
-        if search_mode { 
-            prompt = "redOx(find):";
+
+        let mut selected_command: String = String::from("");
+        let mut current_mode: String = String::from("");
+        if command_history.len() > 0 {
+            selected_command = "[cmd: ".to_owned() + &command_history[selected_command_in_history].cmd_id.to_string() + "]";
         }
-        update_prompt(&mut stdout, prompt, &query);
+        if search_mode { 
+            current_mode = "(find)".to_owned();
+        }
+        update_prompt(&mut stdout, &selected_command, &current_mode, &query);
 
         let key = std::io::stdin().keys().next().unwrap();
-
         match key {          
             Ok(Key::Ctrl('r')) => { // Ctrl + R to enter search mode and query the database as you type
                 search_mode = true;
                 query.clear();
             }
             Ok(Key::Backspace) => {
-                query.pop();
-                write!(stdout, "{}{}", 
-                    termion::cursor::Left(prompt.len() as u16 + query.len() as u16 + 1), 
-                    termion::clear::AfterCursor)
-                    .expect("Failed to write to stdout");
-                    if search_mode  {
-                        results.clear(); 
-                        results_selection_mode = false;                      
-                        let command_output: String;
-                        
-                        if query.len() > 0 { 
-                            let command = format!("search {}", query);
-                            (command_output, results) = search_commands(&db, &command).await;
-                        } else {
-                            command_output = String::new();
-                        }
-                        write_output(&mut stdout, command_output);                           
-                    } 
+                query.pop();             
+                update_prompt(&mut stdout, &selected_command, &current_mode, &query);
+                if search_mode  {
+                    results.clear(); 
+                    results_selection_mode = false;                      
+                    
+                    if query.len() > 0 { 
+                        let command = format!("search {}", query);
+                        results = search_commands(&db, &mut stdout, &command).await;
+                    }                          
+                } 
             }
             Ok(Key::Up) => {  // Move up in results  
                 if results.len() > 0 { 
@@ -108,7 +113,7 @@ async fn main() {
                     }
                 }
             }            
-            Ok(Key::Ctrl('v')) => {// Paste text from the clipboard            
+            Ok(Key::Ctrl('v')) => {// Paste text from the clipboard, needed for adding content to the database            
                 let mut clipboard = ClipboardContext::new().unwrap();
                 
                 if let Ok(text) = clipboard.get_contents() {
@@ -120,18 +125,14 @@ async fn main() {
             Ok(Key::Char(c)) if c != '\n'  => { 
                 results_selection_mode = false;               
                 query.push(c);
-                write!(stdout, "{}", 
-                    c)
-                    .expect("Failed to write to stdout");
-                    if search_mode {
-                        if query.len() > 0 {
-                            results.clear();
-                            let mut command_output = String::new();
-                            let command = format!("search {}", query);
-                            (command_output, results) = search_commands(&db, &command).await;
-                            write_output(&mut stdout, command_output);                           
-                        }
+                update_prompt(&mut stdout, &selected_command, &current_mode, &query);
+                if search_mode {
+                    if query.len() > 0 {
+                        results.clear();
+                        let command = format!("search {}", query);
+                        results = search_commands(&db, &mut stdout, &command).await;
                     }
+                }
             }            
             Ok(Key::Ctrl('c')) => {// Exit the CLI
                 break;
@@ -141,15 +142,41 @@ async fn main() {
                 results_selection_mode = false;
                 query.clear();
                 write!(stdout, "{}", 
-                termion::clear::All)
-                .expect("Failed to write to stdout");                
+                    termion::clear::All)
+                    .expect("Failed to write to stdout");                
             }
+            Ok(Key::Ctrl('h')) => {// Display selectable list of past commands
+                if command_history.len() > 0 {
+                    results.clear();
+                    display_selectable_list(&mut stdout, &mut command_history);
+                    results = command_history.clone();
+                    results_selection_mode == false;
+                } else {
+                    display_error(&mut stdout, String::from("History is currently empty."));
+                }                
+            }            
             Ok(Key::Char('\n')) => {
                 let mut command_output: String = String::new();
                 if results_selection_mode == true {
                     let mut clipboard = ClipboardContext::new().unwrap();
                     clipboard.set_contents(results[selected_result_index].cmd.to_owned());
-                    command_output = format!("Command id: {}\n\r{}\n\rCopied: {}{}{}{}{} to clipboard\n\r",
+                    //Add new command to command_history if it isn't already in the command_history
+                    //Also set the index
+                    let mut add_to_history: bool = true;
+                    let commands_slice: &[command::Command] = &command_history;
+                    for (i, command) in commands_slice.iter().enumerate(){
+                        if command.cmd_id == results[selected_result_index].cmd_id.to_owned(){
+                            add_to_history = false;
+                            selected_command_in_history = i;
+                            break;
+                        }
+                    }
+                    if add_to_history {
+                        command_history.push(results[selected_result_index].clone());
+                        selected_command_in_history = command_history.len() - 1;
+                    }
+                    
+                    command_output = format!("Command id: {} selected\n\r{}\n\rCopied: {}{}{}{}{} to clipboard\n\r",
                         results[selected_result_index].cmd_id,
                         results[selected_result_index].cmnt,                  
                         color::Bg(color::White),
@@ -159,9 +186,30 @@ async fn main() {
                         color::Bg(color::Reset));
                     write_output(&mut stdout, command_output);
                     results_selection_mode == false;
+                    search_mode = false;
+                } else if query.starts_with("history") {
+                    if command_history.len() > 0 {
+                        results.clear();
+                        display_selectable_list(&mut stdout, &mut command_history);
+                        results = command_history.clone();
+                        results_selection_mode == false;
+                    } else {
+                        display_error(&mut stdout, String::from("History is currently empty."));
+                    }
+                } else if query.starts_with("info") {
+                    if command_history.len() > 0 {
+                        command_output = format!("Command id: {}\n\rComment: {}\n\rCommand: {}\n\r",
+                        command_history[selected_command_in_history].cmd_id,
+                        command_history[selected_command_in_history].cmnt,                  
+                        command_history[selected_command_in_history].cmd);
+                        write_output(&mut stdout, command_output); 
+                    } else {
+                        display_error(&mut stdout, String::from("There isn't a command currently selected."));
+                    }    
+                         
                 } else if query.starts_with("search") {
-                    (command_output,results) = search_commands(&db, &query).await;
-                    write_output(&mut stdout, command_output);
+                    results = search_commands(&db, &mut stdout, &query).await;
+                    // write_output(&mut stdout, command_output);
                 } else if query.starts_with("exit") {
                     break;
                 } else {

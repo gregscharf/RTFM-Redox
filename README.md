@@ -9,7 +9,7 @@ My current usage of this is to have it running in a tmux pane and when I need th
 
 ## To Add
 - [ ] Set variables for replacement of things like Remote Host, Local Host, Local Port, etc similar to msfconsole.
-- [ ] Display command's comment and any other info after it has been selected.
+- [x] Display command's comment and any other info after it has been selected.
 - [ ] Add related commands associated with a command
     - In the full search output these would also be listed out under related commands
 - [ ] Implement [RTFM](https://github.com/leostat/rtfm)'s solution for creating/updating the database

@@ -5,17 +5,22 @@ My current usage of this is to have it running in a tmux pane and when I need th
 
 5-25-23: CLI variable replacement for commands will be added within the week. 
 
-05-25-23: This is still very rough but it is at a point where it is a functional proof of concept.  Currently you can add commands to the database from the CLI, search with the 'search' command or quick search with ctrl+r similar to searching through your terminal history.  Once results are returned you can use the up/down arrow keys to highlight a command and then press return to copy that command to your clipboard.  
+05-25-23: This is still very rough but it is at a point where it is a functional proof of concept.  
+
+05-26-23: Currently you can add commands to the database from the CLI, search with the 'search' command or quick search with ctrl+r similar to searching through your terminal history.  Once results are returned you can use the up/down arrow keys to highlight a command and then press return to copy that command to your clipboard.  Previously selected commands are displayed in a selectable list with 'history' or Crtl+h.  'info' displays information on the currently selected command.  
 
 ## To Add
 - [ ] Set variables for replacement of things like Remote Host, Local Host, Local Port, etc similar to msfconsole.
+- [ ] Add config file for variables and other as yet to be determined configurations.
+- [ ] Make use of tags already implemented in the database to display selectable list of group items. For example, 'reverse shells linux' to display all commands in the database grouped under that tag.  Also need a function to display all tags in the database.
+- [ ] Add ability to update the currently selected command and related information in the database.
 - [x] Display command's comment and any other info after it has been selected.
 - [x] Add a history feature, ctrl+h or type 'history' to show a selectable list of previously copied commands.
 - [ ] Show currently selected command in prompt, type info to show all columns to allow for easier updating of the database within the CLI.
 - [ ] Add related commands associated with a command
     - In the full search output these would also be listed out under related commands
 - [ ] Implement [RTFM](https://github.com/leostat/rtfm)'s solution for creating/updating the database
-- [ ] Update the database with newer commands for things like Bloodhound,Rubeus,Crackmapexec,Chisel,SSHuttle, various potato attacks, etc.
+- [ ] Update the database with newer commands for things like Bloodhound,ffuf,feroxbuster,Rubeus,Crackmapexec,Chisel,SSHuttle, etc.
 - [ ] Add a better method for generating help content with the prettytable crate.
 - [ ] Allow selection mode to wrap up or down
 - [ ] Add search capability for text based/markdown notes.  

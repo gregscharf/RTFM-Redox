@@ -4,15 +4,15 @@ use console_view::{
         write_output,
         update_prompt,
         display_selectable_list,
-        display_error};
+        display_error, clear_display};
 mod execute_command; 
 use execute_command::{execute_command,search_commands, command};
 use sqlx::{migrate::MigrateDatabase, Sqlite, SqlitePool};
-use std::io::{Write, stdout};
+use std::io::stdout;
 use termion::event::Key;
 use termion::input::TermRead;
 use termion::raw::{IntoRawMode};
-use termion::{color};
+use termion::color;
 use clipboard::{ClipboardContext, ClipboardProvider};
 
 const DB_URL: &str = "sqlite://snips.db";
@@ -84,7 +84,9 @@ async fn main() {
                     if query.len() > 0 { 
                         let command = format!("search {}", query);
                         results = search_commands(&db, &mut stdout, &command).await;
-                    }                          
+                    } else {
+                        clear_display(&mut stdout);
+                    }                        
                 } 
             }
             Ok(Key::Up) => {  // Move up in results  
@@ -141,9 +143,7 @@ async fn main() {
                 search_mode = false;
                 results_selection_mode = false;
                 query.clear();
-                write!(stdout, "{}", 
-                    termion::clear::All)
-                    .expect("Failed to write to stdout");                
+                clear_display(&mut stdout);
             }
             Ok(Key::Ctrl('h')) => {// Display selectable list of past commands
                 if command_history.len() > 0 {

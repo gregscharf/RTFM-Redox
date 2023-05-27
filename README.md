@@ -4,6 +4,7 @@ The goal of this project is to create an easier to use and updated replacement f
 My current usage of this is to have it running in a tmux pane and when I need the syntax for something like downloading a file from my local machine and then executing that in memory via powershell then I can just ctrl+r in the CLI, type something like IEX or powershell, and then select the syntax I need via the arrow keys.  Pressing return on the hightlighted command will then copy that command to the clipboard.  So instead of searching through my notes or opening a web browser, I can stay in the terminal and quickly copy/paste the command I need via the RedOx CLI.  
 
 ## Working Features
+- **note** On kali the backspace/delete key requires Ctrl+Backspace/Delete to delete previous typed characters in terminal.  
 - Ctrl+r to dynamically search the RTFM database for commands as you type and display those in a selectable list.  Works similarly to using Ctrl+r to search through terminal history.
 - Ctrl+h to display a history of previously selected commands from the current session in a selectable list. 
 - up/down arrow keys to highlight a command from the current search or from the history. Pressing return copies that command to the clipboard.  
@@ -44,7 +45,7 @@ My current usage of this is to have it running in a tmux pane and when I need th
 - [ ] Add buffer to scroll through result output that doesn't fit within terminal windows.
 - [x] Handle error when output exceeds terminal window so application doesn't crash on Arch.
     - Needs a much better solution
-- [ ] Kali Arm terminal input is mostly broken    
+- [ ] Kali backspace/delete key requires Ctrl+Backspace/Delete to delete typed character preceding cursor.    
 - [ ] Issues with Sys crate when attempting to build a Windows executable.
 - [ ] Termion screen refresh on MAC M1 causes screen to flicker when arrowing through commands.
 
@@ -72,6 +73,3 @@ sudo apt install libxcb1-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0
 
 ### Windows
 **Note**: Building on Windows is not currently working because of an issue I need to resolve related to the Sys crate???
-
-### Kali Arm
-Terminal input in general has issues that make it unusable.

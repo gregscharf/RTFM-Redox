@@ -74,24 +74,18 @@ pub async fn search_commands(db: &SqlitePool, stdout: &mut RawTerminal<Stdout>, 
 pub async fn execute_command(db: &SqlitePool, command: &String) -> String{
     let output;
     match command.as_str() {
-        s if s.starts_with("open") => {
-            output = "Open";
-        }
-        "info" => {
-            output = "Info";
-        }
-        s if s.starts_with("use") => {
-            output = "Use";
-        }                
         s if s.starts_with("help") => {
             if command.contains("add") {
                 output = "To add a command to the database\n\r'add -c command [optional: -d comment]"; 
             } else if command.contains("search"){
-                output = "Ctrl+r -- to enter quick search mode to find matching commands as you type.\n\rEsc to exit search mode.\n\rOr use 'search' command followed by a term to search results.";             
+                output = "Ctrl+r -- Enter quick search mode to dynamically find commands as you type.\n\rEsc to exit search mode.\n\rOr use 'search' command followed by a term to search results.";             
             } else {
-                output = "exit or Ctrl+c\t-- Exit redOx.\n\rCtrl+v\t\t-- Paste from clipboard\n\rCtrl+r\t\t-- Enter search mode and then start typing to find commands.\n\rEsc\t\t-- Exit current mode.\n\rhistory\t\t-- Display selectable history of already selected commands\n\rinfo\t\t-- Display info on currently selected command.\n\r"; 
+                output = "Ctrl+r\t\t-- Enter quick search mode to dynamically find commands as you type.\n\rCrtl+h\t\t-- Display selectable history of already selected commands\n\rCtrl+v\t\t-- Paste from clipboard\n\rEsc\t\t-- Exit current mode.\n\rinfo\t\t-- Display info on currently selected command.\n\rhelp\t\t-- Display help\n\rCtrl+q or exit\t-- Exit redOx.\n\r"; 
             }
         },
+        s if s.starts_with("set") => {
+            output = "Attempted to set a non-existent variable.";
+        }        
         s if s.starts_with("add") => {
             if command.contains(" -c "){
                 let start_index = command.find("-c").unwrap() + 3;

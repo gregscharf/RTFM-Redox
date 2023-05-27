@@ -19,8 +19,8 @@ pub fn highlight_search_result(stdout: &mut RawTerminal<Stdout>, selected_index:
     for (i, command) in results.iter().enumerate() {
         if i == selected_index {
             console_output += format!("{}{}({}) - {}{}{}\n\r",
-                color::Bg(color::Cyan),
-                color::Fg(color::Black),
+                color::Bg(color::Rgb(165,93,53)),
+                color::Fg(color::Rgb(255, 255, 153)),
                 command.cmd_id,
                 command.cmd,
                 color::Fg(color::Reset),
@@ -66,20 +66,37 @@ pub fn write_output(stdout: &mut RawTerminal<Stdout>, console_output: String) {
 
 pub fn update_prompt(stdout: &mut RawTerminal<Stdout>, selected_command: &String, current_mode: &String, query: &String){
     let (_width, height) = terminal_size().unwrap();
-    let mut prompt: String = String::from("redOx");
-    prompt += selected_command;
-    prompt += current_mode;
-    prompt += ":"; 
-    write!(stdout, "{}{}{}{}{}{}{}{}{}", 
+
+    let mut prompt: String = String::new();
+    if !selected_command.is_empty() {
+        prompt = format!("{}redOx[{}{}{}]",
+                color::Fg(color::Rgb(165,93,53)),            
+                color::Fg(color::LightYellow), 
+                selected_command,
+                color::Fg(color::Rgb(165,93,53)),
+                );
+    } else {
+        prompt = format!("{}redOx",
+            color::Fg(color::Rgb(165,93,53)));       
+    }
+
+    let mut mode: String = String::from(":");
+    if !current_mode.is_empty() {
+        mode = format!("({}{}{}):",
+            color::Fg(color::Yellow), 
+            current_mode,
+            color::Fg(color::Rgb(165,93,53)));
+    }
+
+    write!(stdout, "{}{}{}{}{}{}{}{}", 
         cursor::Goto(1, height), 
-        termion::cursor::Left(prompt.len() as u16 + query.len() as u16 + 1), 
-        termion::clear::AfterCursor,         
-        color::Fg(color::Cyan), 
-        prompt, 
+        termion::cursor::Left(prompt.len() as u16 + mode.len() as u16 + query.len() as u16 + 1), 
+        termion::clear::AfterCursor, 
+        prompt,    
+        mode,    
         color::Fg(color::Reset),
         query,
-        cursor::Goto(prompt.len() as u16 + query.len() as u16 + 1, height),
-        termion::cursor::BlinkingBlock)
+        termion::cursor::BlinkingUnderline)
         .unwrap();    
 
         stdout.flush().unwrap();
@@ -87,5 +104,5 @@ pub fn update_prompt(stdout: &mut RawTerminal<Stdout>, selected_command: &String
 pub fn clear_display(stdout: &mut RawTerminal<Stdout>){
     write!(stdout, "{}", 
         termion::clear::All)
-        .expect("Failed to write to stdout");    
+        .expect("Failed to write to stdout");       
 }

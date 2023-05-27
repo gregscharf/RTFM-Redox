@@ -4,7 +4,8 @@ use console_view::{
         write_output,
         update_prompt,
         display_selectable_list,
-        display_error, clear_display
+        display_error, 
+        clear_display
     };
 mod execute_command; 
 use execute_command::{
@@ -54,6 +55,7 @@ async fn main() {
     //Create a history for selected commands
     let mut command_history: Vec<command::Command> = Vec::new();
     let mut selected_command_in_history: usize = 0;
+    let mut history_mode: bool = false;
     // Set up the scrolling output buffer
     // let mut output: Vec<String> = vec![];
     // let mut total_output: i32 = 1;
@@ -69,11 +71,15 @@ async fn main() {
         let mut selected_command: String = String::from("");
         let mut current_mode: String = String::from("");
         if command_history.len() > 0 {
-            selected_command = "[cmd: ".to_owned() + &command_history[selected_command_in_history].cmd_id.to_string() + "]";
+            selected_command =  command_history[selected_command_in_history].cmd_id.to_string();
         }
+
         if search_mode { 
-            current_mode = "(find)".to_owned();
+            current_mode = "find".to_string();
+        } else if history_mode {
+            current_mode = "history".to_string();
         }
+
         update_prompt(&mut stdout, &selected_command, &current_mode, &query);
 
         let key = std::io::stdin().keys().next().unwrap();
@@ -93,7 +99,9 @@ async fn main() {
                         let command = format!("search {}", query);
                         results = search_commands(&db, &mut stdout, &command).await;
                     } else {
-                        clear_display(&mut stdout);
+                        // clear_display(&mut stdout);
+                        let command_output: String = execute_command(&db, &"help".to_string()).await;
+                        write_output(&mut stdout, command_output);                        
                     }                        
                 } 
             }
@@ -144,27 +152,32 @@ async fn main() {
                     }
                 }
             }            
-            Ok(Key::Ctrl('c')) => {// Exit the CLI
+            Ok(Key::Ctrl('q')) => {// Exit the CLI
                 break;
             }
             Ok(Key::Esc)  => {
                 search_mode = false;
+                history_mode = false;
                 results_selection_mode = false;
                 query.clear();
-                clear_display(&mut stdout);
+                // clear_display(&mut stdout);
+                let command_output: String = execute_command(&db, &"help".to_string()).await;
+                write_output(&mut stdout, command_output);
             }
             Ok(Key::Ctrl('h')) => {// Display selectable list of past commands
                 if command_history.len() > 0 {
                     results.clear();
                     display_selectable_list(&mut stdout, &mut command_history);
                     results = command_history.clone();
-                    results_selection_mode == false;
+                    results_selection_mode = false;
+                    history_mode = true;
                 } else {
                     display_error(&mut stdout, String::from("History is currently empty."));
                 }                
             }            
             Ok(Key::Char('\n')) => {
                 let mut command_output: String = String::new();
+                history_mode = false;
                 if results_selection_mode == true {
                     let mut clipboard = ClipboardContext::new().unwrap();
                     clipboard.set_contents(results[selected_result_index].cmd.to_owned());
@@ -184,23 +197,25 @@ async fn main() {
                         selected_command_in_history = command_history.len() - 1;
                     }
                     
-                    command_output = format!("Command id: {} selected\n\r{}\n\rCopied: {}{}{}{}{} to clipboard\n\r",
+                    command_output = format!("Command id: {} selected\n\rComment: {}\n\rCopied: {}{}{}{}{} to clipboard\n\r",
                         results[selected_result_index].cmd_id,
                         results[selected_result_index].cmnt,                  
-                        color::Bg(color::White),
-                        color::Fg(color::Black),
+                        color::Bg(color::Rgb(165,93,53)),
+                        color::Fg(color::Rgb(255, 255, 153)),
                         results[selected_result_index].cmd,
                         color::Fg(color::Reset),
                         color::Bg(color::Reset));
                     write_output(&mut stdout, command_output);
                     results_selection_mode = false;
                     search_mode = false;
+                // } else if query.starts_with("set") {
+                //     execute_set_command(&db, &mut stdout, &query);                    
                 } else if query.starts_with("history") {
                     if command_history.len() > 0 {
                         results.clear();
                         display_selectable_list(&mut stdout, &mut command_history);
                         results = command_history.clone();
-                        results_selection_mode == false;
+                        results_selection_mode = false;
                     } else {
                         display_error(&mut stdout, String::from("History is currently empty."));
                     }

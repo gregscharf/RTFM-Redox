@@ -1,8 +1,6 @@
 
 The goal of this project is to create an easier to use and updated replacement for [RTFM](https://github.com/leostat/rtfm) or something to run in the terminal that works like [Rev Shells](https://revshells.com/) or the [HackTools](https://addons.mozilla.org/en-US/firefox/addon/hacktools/) browser plugin. This started as a project to help improve my proficiency with Rust. I'm still new to it so I'm sure there are some poor Rust coding practices but I will be refactoring the code as I go.  I'm currently using the sqlite database that [RTFM](https://github.com/leostat/rtfm) uses but that needs some updating and new syntax needs to be added since that hasn't been touched in almost 6 years.  
 
-My current usage of this is to have it running in a tmux pane and when I need the syntax for something like downloading a file from my local machine and then executing that in memory via powershell then I can just ctrl+r in the CLI, type something like IEX or powershell, and then select the syntax I need via the arrow keys.  Pressing return on the hightlighted command will then copy that command to the clipboard.  So instead of searching through my notes or opening a web browser, I can stay in the terminal and quickly copy/paste the command I need via the RedOx CLI.  
-
 ## Working Features
 - **note** On kali the backspace/delete key requires Ctrl+Backspace/Delete to delete previous typed characters in terminal.  
 - Ctrl+r to dynamically search the RTFM database for commands as you type and display those in a selectable list.  Works similarly to using Ctrl+r to search through terminal history.
@@ -52,12 +50,14 @@ My current usage of this is to have it running in a tmux pane and when I need th
 ## Build/Install
 
 ### Linux
-To build and use until I add release builds
 
+To build and use until I add release builds... if the linker fails during build see Issues below.
 ```bash
 git clone https://github.com/gregscharf/RTFM-Redox.git
+cargo run
+
+# Or if you want to build a release
 cargo build -r
-# If you encounter linker errors see Issues below
 mkdir /opt/redox
 cp target/release/redox /opt/redox/
 cp snibs.db /opt/redox/
@@ -66,7 +66,7 @@ cd /opt/redox
 ```
 
 **Issues**
-When building on Debian distributions: If the linker fails during build install the following packages.
+When building on Debian distributions: If the linker fails during build, install the following packages.
 ```bash
 sudo apt install libxcb1-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev
 ```

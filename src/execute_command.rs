@@ -71,6 +71,50 @@ pub async fn search_commands(db: &SqlitePool, stdout: &mut RawTerminal<Stdout>, 
         return results;
 }
 
+pub async fn execute_update_command(db: &SqlitePool, command: &String, table_row: &mut command::Command) -> String {
+
+    let mut content = "";
+    let mut column = "";
+    let mut sql_query = "";
+    if command.contains("comment") {
+        column = "comment";
+        let start_index = command.find("comment").unwrap() + "comment".len() + 1;
+        content = &command[start_index..];
+        sql_query = "UPDATE TblCommand SET cmnt = ? where CmdID = ?";     
+        table_row.cmnt = content.to_string();  
+    } else if command.contains("author"){
+        column = "author";
+        let start_index = command.find("author").unwrap() + "author".len() + 1;
+        content = &command[start_index..];
+        sql_query = "UPDATE TblCommand SET author = ? where CmdID = ?";
+        table_row.author = content.to_string();
+
+    } else if command.contains("command"){
+        column = "command";
+        let start_index = command.find("command").unwrap() + "command".len() + 1;
+        content = &command[start_index..];
+        sql_query = "UPDATE TblCommand SET Cmd = ? where CmdID = ?";
+        table_row.cmd = content.to_string();
+    } else {      
+        return String::from("Invalid update.");
+    }
+    
+    sqlx::query(&sql_query)
+        .bind(content)
+        .bind(table_row.cmd_id)
+        .execute(db)
+        .await
+        .unwrap();
+
+    let command_output: String = format!("Updated {}: {}\n\r",
+        column,
+        content);
+
+    return command_output;
+
+}
+
+
 pub async fn execute_command(db: &SqlitePool, command: &String) -> String{
     let output;
     match command.as_str() {
@@ -80,7 +124,7 @@ pub async fn execute_command(db: &SqlitePool, command: &String) -> String{
             } else if command.contains("search"){
                 output = "Ctrl+r -- Enter quick search mode to dynamically find commands as you type.\n\rEsc to exit search mode.\n\rOr use 'search' command followed by a term to search results.";             
             } else {
-                output = "Ctrl+r\t\t-- Enter quick search mode to dynamically find commands as you type.\n\rCrtl+h\t\t-- Display selectable history of already selected commands\n\rCtrl+v\t\t-- Paste from clipboard\n\rEsc\t\t-- Exit current mode.\n\rinfo\t\t-- Display info on currently selected command.\n\rhelp\t\t-- Display help\n\rCtrl+q or exit\t-- Exit redOx.\n\r"; 
+                output = "Ctrl+r\t\t-- Enter quick search mode to dynamically find commands as you type.\n\rCrtl+h\t\t-- Display selectable history of already selected commands\n\rCtrl+v\t\t-- Paste from clipboard\n\rEsc\t\t-- Exit current mode.\n\rinfo\t\t-- Display info on currently selected command.\n\rhelp\t\t-- Display help\n\radd\t\t-- Add a command to the database e.g. 'add -c stty raw -echo;fg'\n\rupdate\t\t-- update database columns of currently selected command e.g. 'update comment bash reverse shell'\n\rCtrl+q or exit\t-- Exit redOx.\n\r"; 
             }
         },
         s if s.starts_with("set") => {

@@ -1,30 +1,14 @@
 mod console_view;
-use console_view::{
-        highlight_search_result,
-        write_output,
-        update_prompt,
-        display_selectable_list,
-        display_error, 
-        clear_display
-    };
+use console_view::{highlight_search_result,write_output,update_prompt,display_selectable_list,display_error,clear_display};
 mod execute_command; 
-use execute_command::{
-        execute_command,
-        search_commands, 
-        command
-    };
-use sqlx::{
-        migrate::MigrateDatabase, 
-        Sqlite, SqlitePool};
+use execute_command::{execute_command,search_commands, execute_update_command,command};
+use sqlx::{migrate::MigrateDatabase,Sqlite, SqlitePool};
 use std::io::stdout;
 use termion::event::Key;
 use termion::input::TermRead;
 use termion::raw::IntoRawMode;
 use termion::color;
-use clipboard::{
-        ClipboardContext, 
-        ClipboardProvider
-    };
+use clipboard::{ClipboardContext,ClipboardProvider};
 
 const DB_URL: &str = "sqlite://snips.db";
 
@@ -178,7 +162,10 @@ async fn main() {
             Ok(Key::Char('\n')) => {
                 let mut command_output: String = String::new();
                 history_mode = false;
-                if results_selection_mode == true {
+                if query.starts_with("update") {
+                    command_output = execute_update_command(&db, &query, &mut command_history[selected_command_in_history]).await;
+                    write_output(&mut stdout, command_output);
+                } else if results_selection_mode == true {
                     let mut clipboard = ClipboardContext::new().unwrap();
                     clipboard.set_contents(results[selected_result_index].cmd.to_owned());
                     //Add new command to command_history if it isn't already in the command_history
@@ -207,9 +194,7 @@ async fn main() {
                         color::Bg(color::Reset));
                     write_output(&mut stdout, command_output);
                     results_selection_mode = false;
-                    search_mode = false;
-                // } else if query.starts_with("set") {
-                //     execute_set_command(&db, &mut stdout, &query);                    
+                    search_mode = false;                    
                 } else if query.starts_with("history") {
                     if command_history.len() > 0 {
                         results.clear();
@@ -221,7 +206,7 @@ async fn main() {
                     }
                 } else if query.starts_with("info") {
                     if command_history.len() > 0 {
-                        command_output = format!("Command id: {}\n\rAuthor: {}\n\rComment: {}\n\rCommand: {}\n\r",
+                        command_output = format!("Command id: {}\n\rauthor: {}\n\rcomment: {}\n\rcommand: {}\n\r",
                         command_history[selected_command_in_history].cmd_id,                  
                         command_history[selected_command_in_history].author,
                         command_history[selected_command_in_history].cmnt,                  

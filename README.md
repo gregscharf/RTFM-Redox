@@ -44,7 +44,7 @@ My current usage of this is to have it running in a tmux pane and when I need th
 - [ ] Add buffer to scroll through result output that doesn't fit within terminal windows.
 - [x] Handle error when output exceeds terminal window so application doesn't crash on Arch.
     - Needs a much better solution
-- [ ] Issues with Termion when attempting to build a Windows executable.
+- [ ] Issues with Sys crate when attempting to build a Windows executable.
 - [ ] Termion screen refresh on MAC M1 causes screen to flicker when arrowing through commands.
 
 ## Build/Install
@@ -59,7 +59,8 @@ cargo build -r
 mkdir /opt/redox
 cp target/release/redox /opt/redox/
 cp snibs.db /opt/redox/
-sudo ln -s /opt/redox/redox /bin/redox
+cd /opt/redox
+./redox
 ```
 
 **Issues**

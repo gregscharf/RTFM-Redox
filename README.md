@@ -55,25 +55,5 @@ Issue encountered when building on Ubuntu 20.04: linker failed and the only fix 
 sudo apt install libxcb1-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev
 ```
 
-
 ### Windows
-**Note**: Windows builds are not currently working because of an issue I need to resolve related to the Termion crate.
-Build Windows executable on linux
-```
-sudo apt install mingw-w64
-
-rustup target add x86_64-pc-windows-gnu
-```
-
-In ~/.cargo/config (create this file if it doesnt' exits) add the following lines
-```
-[target.x86_64-pc-windows-gnu]
-linker = "x86_64-w64-mingw32-gcc"
-```
-
-```bash
-cargo build --target x86_64-pc-windows-gnu
-```
-
-
-
+**Note**: Building on Windows is not currently working because of an issue I need to resolve related to the Sys crate???

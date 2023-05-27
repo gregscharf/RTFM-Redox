@@ -47,10 +47,23 @@ My current usage of this is to have it running in a tmux pane and when I need th
 - [ ] Issues with Termion when attempting to build a Windows executable.
 - [ ] Termion screen refresh on MAC M1 causes screen to flicker when arrowing through commands.
 
-## Build
+## Build/Install
 
 ### Linux
-Issue encountered when building on Ubuntu 20.04: linker failed and the only fix was to install the following packages.
+To build and use until I add release builds
+
+```bash
+git clone https://github.com/gregscharf/RTFM-Redox.git
+cargo build -r
+# If you encounter linker errors see Issues below
+mkdir /opt/redox
+cp target/release/redox /opt/redox/
+cp snibs.db /opt/redox/
+sudo ln -s /opt/redox/redox /bin/redox
+```
+
+**Issues**
+When building on Debian distributions: If the linker fails during build install the following packages.
 ```bash
 sudo apt install libxcb1-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev
 ```

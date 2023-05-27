@@ -44,6 +44,7 @@ My current usage of this is to have it running in a tmux pane and when I need th
 - [ ] Add buffer to scroll through result output that doesn't fit within terminal windows.
 - [x] Handle error when output exceeds terminal window so application doesn't crash on Arch.
     - Needs a much better solution
+- [ ] Kali Arm terminal input is mostly broken    
 - [ ] Issues with Sys crate when attempting to build a Windows executable.
 - [ ] Termion screen refresh on MAC M1 causes screen to flicker when arrowing through commands.
 
@@ -71,3 +72,6 @@ sudo apt install libxcb1-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0
 
 ### Windows
 **Note**: Building on Windows is not currently working because of an issue I need to resolve related to the Sys crate???
+
+### Kali Arm
+Terminal input in general has issues that make it unusable.

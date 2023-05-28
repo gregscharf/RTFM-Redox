@@ -57,6 +57,13 @@ pub fn display_command_info(stdout: &mut RawTerminal<Stdout>, command: Command, 
     write_output(stdout, command_output); 
 }
 
+pub fn display_user_variables(stdout: &mut RawTerminal<Stdout>, variables: &mut Variables){
+    clear_display(stdout);
+    let user_variables = variables.printable_variable_list(variables.user_variables.clone());
+    let command_output = format!("\n\rUser Variables\n\r----------------------------\n\r{}\n\r",
+        user_variables);
+    write_output(stdout, command_output); 
+}
 
 
 pub fn display_error(stdout: &mut RawTerminal<Stdout>, error_message: String){

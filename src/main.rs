@@ -1,5 +1,5 @@
 mod terminal_output;
-use terminal_output::{highlight_search_result,write_output,update_prompt,display_selectable_list,display_error,display_command_info, clear_display, display_copy_info};
+use terminal_output::{highlight_search_result,write_output,update_prompt,display_selectable_list,display_error,display_command_info, display_user_variables, clear_display, display_copy_info};
 mod execute_command; 
 use execute_command::{execute_command,search_commands, execute_update_command,command};
 mod command_variables;
@@ -174,6 +174,7 @@ async fn main() {
                 let command_output: String;
                 history_mode = false;
                 if query.starts_with("update") { //update command
+                    clear_display(&mut stdout);
                     let update_output = execute_update_command(&db, &query, &mut command_history[selected_command_in_history]).await;
                     write_output(&mut stdout, update_output);
                     display_command_info(&mut stdout, command_history[selected_command_in_history].clone(), &mut variables);
@@ -211,8 +212,7 @@ async fn main() {
                         display_error(&mut stdout, String::from("History is currently empty."));
                     }
                 } else if query.starts_with("env"){
-                    clear_display(&mut stdout);
-                    write_output(&mut stdout, variables.printable_variable_list(variables.user_variables.clone()));    
+                    display_user_variables(&mut stdout, &mut variables);    
                 } else if query.starts_with("set") {
                     let query_values: Vec<&str> = query.split_whitespace().collect();
                     if let Some(variable) = query_values.get(1) {

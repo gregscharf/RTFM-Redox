@@ -1,5 +1,5 @@
-mod console_view;
-use console_view::{highlight_search_result,write_output,update_prompt,display_selectable_list,display_error,clear_display};
+mod terminal_output;
+use terminal_output::{highlight_search_result,write_output,update_prompt,display_selectable_list,display_error};
 mod execute_command; 
 use execute_command::{execute_command,search_commands, execute_update_command,command};
 use sqlx::{migrate::MigrateDatabase,Sqlite, SqlitePool};
@@ -160,7 +160,7 @@ async fn main() {
                 }                
             }            
             Ok(Key::Char('\n')) => {
-                let mut command_output: String = String::new();
+                let command_output: String;
                 history_mode = false;
                 if query.starts_with("update") {
                     let update_output = execute_update_command(&db, &query, &mut command_history[selected_command_in_history]).await;
@@ -174,7 +174,7 @@ async fn main() {
                     write_output(&mut stdout, command_output);
                 } else if results_selection_mode == true {
                     let mut clipboard = ClipboardContext::new().unwrap();
-                    clipboard.set_contents(results[selected_result_index].cmd.to_owned());
+                    clipboard.set_contents(results[selected_result_index].cmd.to_owned()).unwrap();
                     //Add new command to command_history if it isn't already in the command_history
                     //Also set the index
                     let mut add_to_history: bool = true;

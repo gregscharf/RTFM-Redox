@@ -100,8 +100,8 @@ pub fn update_prompt(stdout: &mut RawTerminal<Stdout>, selected_command: &String
         stdout.flush().unwrap();
 }
 
-pub fn clear_display(stdout: &mut RawTerminal<Stdout>){
-    write!(stdout, "{}", 
-        termion::clear::All)
-        .expect("Failed to write to stdout");       
-}
+// pub fn clear_display(stdout: &mut RawTerminal<Stdout>){
+//     write!(stdout, "{}", 
+//         termion::clear::All)
+//         .expect("Failed to write to stdout");       
+// }

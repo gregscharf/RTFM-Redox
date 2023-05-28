@@ -21,6 +21,7 @@ The goal of this project is to create an easier to use and updated replacement f
 - [ ] Add config file to store user set variables and other as yet to be determined configurations.
     - This might be the place for related commands that are often used together. Add ability to save the commands in the current history.  Would need a way to quickly delete a command in the current history e.g. highlight the command and then Ctrl+d to remove it. Also need to be able to completely clear the current history.  User would also need to supply a name for the history before it is saved to the config file.  These would be stored as an array of row IDs from TblCommand. Use the 'config' crate to facilitate this.  
 - [ ] Add 'env' command to display all variables set in the user's config file
+- [ ] Switch from termion to crossterm for Windows support.
 - [ ] Ctrl+d while in selectable list deletes the item from the database, or if in history mode, deletes the item from the current history.
 - [ ] Make use of tags already implemented in the database to display selectable list of grouped items. For example, 'reverse shells linux' to display all commands in the database grouped under that tag.  tags already in the database are probably a little too general to be useful e.g. 'bash', 'windows'.  Also need a function to display all tags in the database as a selectable list.
 - [x] Add ability to update the database columns of the currently selected command.
@@ -32,20 +33,17 @@ The goal of this project is to create an easier to use and updated replacement f
 - [ ] Add a better method for generating help content with the prettytable crate.
 - [ ] Allow selection mode to wrap up or down
 - [ ] Fix errors that occur when attempting to create a statically linked linux release
-- [ ] Get Windows version working
+- [ ] Get Windows version working... Need to use crossterm instead of termion
 - [ ] Add search capability for text based/markdown notes.    
     - Root directory for user's notes will be supplied in a CLI variable.
 - [ ] Use pre-existing 'refs' table to link to markdown notes and display notes in terminal when selected... there is probably a crate to display markdown.
 
 ## To Fix
 - [ ] 5-26-23: Clean up code again before it becomes too unruly.
-- [x] Termion inconsistent colors between Arch and Ubuntu.
 - [ ] Add buffer to scroll through result output that doesn't fit within terminal windows.
 - [x] Handle error when output exceeds terminal window so application doesn't crash on Arch.
     - Needs a much better solution
 - [ ] Kali backspace/delete key requires Ctrl+Backspace/Delete to delete typed character preceding cursor.    
-- [ ] Issues with Sys crate when attempting to build a Windows executable.
-- [ ] Termion screen refresh on MAC M1 causes screen to flicker when arrowing through commands.
 
 ## Build/Install
 
@@ -72,4 +70,4 @@ sudo apt install libxcb1-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0
 ```
 
 ### Windows
-**Note**: Building on Windows is not currently working because of an issue I need to resolve related to the Sys crate???
+**Note**: Building on Windows is not working because the termion crate does not support Windows.  Will be switching to crossterm.

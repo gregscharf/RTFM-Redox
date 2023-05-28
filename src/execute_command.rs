@@ -1,8 +1,8 @@
 use sqlx::SqlitePool;
 use termion::raw::RawTerminal;
 use std::io::Stdout;
-use crate::console_view::display_error;
-use crate::console_view::display_selectable_list;
+use crate::terminal_output::display_error;
+use crate::terminal_output::display_selectable_list;
 
 pub mod command {
     use sqlx::{Row};
@@ -73,9 +73,9 @@ pub async fn search_commands(db: &SqlitePool, stdout: &mut RawTerminal<Stdout>, 
 
 pub async fn execute_update_command(db: &SqlitePool, command: &String, table_row: &mut command::Command) -> String {
 
-    let mut content = "";
-    let mut column = "";
-    let mut sql_query = "";
+    let content: &str;
+    let column: &str;
+    let sql_query: & str;
     if command.contains("comment") {
         column = "comment";
         let start_index = command.find("comment").unwrap() + "comment".len() + 1;
@@ -155,15 +155,12 @@ pub async fn execute_command(db: &SqlitePool, command: &String) -> String{
             } else {
                 output = "To add a command to the database you must include -c followed by the command\n\r-d with a description of the command is optional"; 
             }
-
-            // output = "set add"; 
         },
         _ => {
             output = "Invalid command";
         }
     }
-    let command_output: String = format!("{}\n\r",output);    
-    return command_output;
+    return format!("{}\n\r",output);
 }
 
 

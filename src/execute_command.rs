@@ -5,10 +5,10 @@ use crate::terminal_output::display_error;
 use crate::terminal_output::display_selectable_list;
 
 pub mod command {
-    use sqlx::{Row};
+    use sqlx::Row;
 
     #[derive(Clone)]
-        pub struct Command {
+    pub struct Command {
         pub cmd_id: i32,
         pub cmd: String,
         pub cmnt: String,
@@ -126,10 +126,7 @@ pub async fn execute_command(db: &SqlitePool, command: &String) -> String{
             } else {
                 output = "Ctrl+r\t\t Enter quick search mode to dynamically find commands as you type.\n\rCrtl+h or hist\t Display selectable history of already selected commands.\n\rCtrl+v\t\t Paste from clipboard\n\rEsc\t\t Exit current mode.\n\rinfo\t\t Display info on the currently selected command.\n\rhelp\t\t Display help\n\radd\t\t Add a command to the database e.g. 'add -c stty raw -echo;fg'\n\rupdate\t\t update database columns of currently selected command e.g. 'update comment bash reverse shell'.\n\rCtrl+q or exit\t Exit redOx.\n\r"; 
             }
-        },
-        s if s.starts_with("set") => {
-            output = "Attempted to set a non-existent variable.";
-        }        
+        },     
         s if s.starts_with("add") => {
             if command.contains(" -c "){
                 let start_index = command.find("-c").unwrap() + 3;

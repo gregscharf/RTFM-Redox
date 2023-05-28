@@ -1,13 +1,13 @@
 mod terminal_output;
-use terminal_output::{highlight_search_result,write_output,update_prompt,display_selectable_list,display_error};
+use terminal_output::{highlight_search_result,write_output,update_prompt,display_selectable_list,display_error,display_command_info, clear_display, display_copy_info};
 mod execute_command; 
 use execute_command::{execute_command,search_commands, execute_update_command,command};
+mod command_variables;
 use sqlx::{migrate::MigrateDatabase,Sqlite, SqlitePool};
 use std::io::stdout;
 use termion::event::Key;
 use termion::input::TermRead;
 use termion::raw::IntoRawMode;
-use termion::color;
 use clipboard::{ClipboardContext,ClipboardProvider};
 
 const DB_URL: &str = "sqlite://snips.db";
@@ -36,6 +36,8 @@ async fn main() {
     let mut results: Vec<command::Command> = Vec::new();
     let mut search_mode: bool = false;
     
+    let mut variables = command_variables::variables::Variables::new();
+
     //Create a history for selected commands
     let mut command_history: Vec<command::Command> = Vec::new();
     let mut selected_command_in_history: usize = 0;
@@ -48,9 +50,10 @@ async fn main() {
     let mut selected_result_index: usize = 0;
     let mut results_selection_mode: bool = false;
 
+    clear_display(&mut stdout);
     let command_output: String = execute_command(&db, &"help".to_string()).await;
     write_output(&mut stdout, command_output);
-  
+
     loop {
         let mut selected_command: String = String::from("");
         let mut current_mode: String = String::from("");
@@ -63,7 +66,6 @@ async fn main() {
         } else if history_mode {
             current_mode = "history".to_string();
         }
-
         update_prompt(&mut stdout, &selected_command, &current_mode, &query);
 
         let key = std::io::stdin().keys().next().unwrap();
@@ -83,7 +85,6 @@ async fn main() {
                         let command = format!("search {}", query);
                         results = search_commands(&db, &mut stdout, &command).await;
                     } else {
-                        // clear_display(&mut stdout);
                         let command_output: String = execute_command(&db, &"help".to_string()).await;
                         write_output(&mut stdout, command_output);                        
                     }                        
@@ -114,10 +115,20 @@ async fn main() {
                         highlight_search_result(&mut stdout,selected_result_index, &mut results); 
                     }
                 }
-            }            
+            }   
+            Ok(Key::Ctrl('c')) => {// Paste text from the clipboard, needed for adding content to the database            
+                if command_history.len() > 0 {
+                    let command = variables.replace_variables_in_command(&results[selected_result_index].cmd);
+                    let mut clipboard = ClipboardContext::new().unwrap();
+                    clipboard.set_contents(command.clone()).unwrap();                                        
+                    display_command_info(&mut stdout, command_history[selected_command_in_history].clone(), &mut variables);
+                    display_copy_info(&mut stdout, command);
+                } else {
+                    display_error(&mut stdout, String::from("There isn't a command currently selected."));
+                }                  
+            },                     
             Ok(Key::Ctrl('v')) => {// Paste text from the clipboard, needed for adding content to the database            
-                let mut clipboard = ClipboardContext::new().unwrap();
-                
+                let mut clipboard = ClipboardContext::new().unwrap();               
                 if let Ok(text) = clipboard.get_contents() {
                     query.push_str(text.as_str());
                     let command = format!("{}", query);
@@ -144,7 +155,7 @@ async fn main() {
                 history_mode = false;
                 results_selection_mode = false;
                 query.clear();
-                // clear_display(&mut stdout);
+                clear_display(&mut stdout);
                 let command_output: String = execute_command(&db, &"help".to_string()).await;
                 write_output(&mut stdout, command_output);
             }
@@ -162,19 +173,14 @@ async fn main() {
             Ok(Key::Char('\n')) => {
                 let command_output: String;
                 history_mode = false;
-                if query.starts_with("update") {
+                if query.starts_with("update") { //update command
                     let update_output = execute_update_command(&db, &query, &mut command_history[selected_command_in_history]).await;
-                    command_output = format!("{}\n\rCommand id: {}\n\rauthor: {}\n\rcomment: {}\n\rcommand: {}\n\r",
-                        update_output,
-                        command_history[selected_command_in_history].cmd_id,                  
-                        command_history[selected_command_in_history].author,
-                        command_history[selected_command_in_history].cmnt,                  
-                        command_history[selected_command_in_history].cmd);
-
-                    write_output(&mut stdout, command_output);
-                } else if results_selection_mode == true {
+                    write_output(&mut stdout, update_output);
+                    display_command_info(&mut stdout, command_history[selected_command_in_history].clone(), &mut variables);
+                } else if results_selection_mode == true { //pressed enter while arrowing through selectable list
+                    let command = variables.replace_variables_in_command(&results[selected_result_index].cmd);
                     let mut clipboard = ClipboardContext::new().unwrap();
-                    clipboard.set_contents(results[selected_result_index].cmd.to_owned()).unwrap();
+                    clipboard.set_contents(command.clone()).unwrap();
                     //Add new command to command_history if it isn't already in the command_history
                     //Also set the index
                     let mut add_to_history: bool = true;
@@ -190,19 +196,12 @@ async fn main() {
                         command_history.push(results[selected_result_index].clone());
                         selected_command_in_history = command_history.len() - 1;
                     }
-                    
-                    command_output = format!("Command id: {}\n\rComment: {}\n\rCopied: {}{}{}{}{} to clipboard\n\r",
-                        results[selected_result_index].cmd_id,
-                        results[selected_result_index].cmnt,                  
-                        color::Bg(color::Rgb(165,93,53)),
-                        color::Fg(color::Rgb(255, 255, 153)),
-                        results[selected_result_index].cmd,
-                        color::Fg(color::Reset),
-                        color::Bg(color::Reset));
-                    write_output(&mut stdout, command_output);
+
+                    display_command_info(&mut stdout, results[selected_result_index].clone(), &mut variables);
+                    display_copy_info(&mut stdout, command);
                     results_selection_mode = false;
                     search_mode = false;                    
-                } else if query.starts_with("hist") {
+                } else if query.starts_with("hist") { //history command
                     if command_history.len() > 0 {
                         results.clear();
                         display_selectable_list(&mut stdout, &mut command_history);
@@ -211,21 +210,39 @@ async fn main() {
                     } else {
                         display_error(&mut stdout, String::from("History is currently empty."));
                     }
-                } else if query.starts_with("info") {
+                } else if query.starts_with("env"){
+                    clear_display(&mut stdout);
+                    write_output(&mut stdout, variables.printable_variable_list(variables.user_variables.clone()));    
+                } else if query.starts_with("set") {
+                    let query_values: Vec<&str> = query.split_whitespace().collect();
+                    if let Some(variable) = query_values.get(1) {
+                        if let Some(value) = query_values.get(2) {
+                            variables.set_user_variable(variable.to_string(), value.to_string());
+                        } else {
+                            display_error(&mut stdout, "You must supply a value".to_string());
+                        }
+
+                        if command_history.len() > 0 {                                     
+                            display_command_info(&mut stdout, command_history[selected_command_in_history].clone(), &mut variables);
+                        }
+
+                        //copy the current command to the clipboard again after setting a variable
+                        let command = variables.replace_variables_in_command(&command_history[selected_command_in_history].cmd);
+                        let mut clipboard = ClipboardContext::new().unwrap();
+                        clipboard.set_contents(command.clone()).unwrap();
+                        display_copy_info(&mut stdout, command);
+                    } else {
+                        display_error(&mut stdout, "You must supply a variable".to_string());
+                    }
+                } else if query.starts_with("info") { //info command
                     if command_history.len() > 0 {
-                        command_output = format!("Command id: {}\n\rauthor: {}\n\rcomment: {}\n\rcommand: {}\n\r",
-                            command_history[selected_command_in_history].cmd_id,                  
-                            command_history[selected_command_in_history].author,
-                            command_history[selected_command_in_history].cmnt,                  
-                            command_history[selected_command_in_history].cmd);
-                        write_output(&mut stdout, command_output); 
+                        display_command_info(&mut stdout, command_history[selected_command_in_history].clone(), &mut variables)
                     } else {
                         display_error(&mut stdout, String::from("There isn't a command currently selected."));
                     }    
                          
                 } else if query.starts_with("search") {
                     results = search_commands(&db, &mut stdout, &query).await;
-                    // write_output(&mut stdout, command_output);
                 } else if query.starts_with("exit") {
                     break;
                 } else {

@@ -3,6 +3,7 @@ use termion::{color,cursor,terminal_size};
 use std::io::Stdout;
 use std::io::Write;
 use crate::execute_command::command::Command;
+use crate::command_variables::variables::Variables;
 
 pub fn highlight_search_result(stdout: &mut RawTerminal<Stdout>, selected_index: usize, results: &mut Vec<Command>) {
     let mut console_output = format!("{}{}Comment: {}\n\r{}{}",
@@ -11,7 +12,7 @@ pub fn highlight_search_result(stdout: &mut RawTerminal<Stdout>, selected_index:
         results[selected_index].cmnt,
         color::Fg(color::Reset),
         color::Bg(color::Reset));      
-              
+    clear_display(stdout);   
     for (i, command) in results.iter().enumerate() {
         if i == selected_index {
             console_output += format!("{}{}({}) - {}{}{}\n\r",
@@ -29,6 +30,7 @@ pub fn highlight_search_result(stdout: &mut RawTerminal<Stdout>, selected_index:
 }
 
 pub fn display_selectable_list(stdout: &mut RawTerminal<Stdout>, selectable_list: &mut Vec<Command>){
+    clear_display(stdout);
     let mut console_output = format!("{}{}{}{}{}",
         color::Bg(color::White),
         color::Fg(color::Black),
@@ -42,7 +44,23 @@ pub fn display_selectable_list(stdout: &mut RawTerminal<Stdout>, selectable_list
     write_output(stdout, console_output); 
 }
 
+
+pub fn display_command_info(stdout: &mut RawTerminal<Stdout>, command: Command, variables: &mut Variables){
+    clear_display(stdout);
+    let command_variables = variables.extract_variables_from_command(&command.cmd);
+    let command_output = format!("Command id: {}\n\rauthor: {}\n\rcomment: {}\n\rcommand: {}\n\r\n\rVariables\n\r----------------------------\n\r{}\n\r",
+        command.cmd_id,                  
+        command.author,
+        command.cmnt,                  
+        command.cmd,
+        command_variables);
+    write_output(stdout, command_output); 
+}
+
+
+
 pub fn display_error(stdout: &mut RawTerminal<Stdout>, error_message: String){
+    clear_display(stdout);
     let error_output = format!("{}{}{}\n\r",
             color::Fg(color::Red),
             error_message,
@@ -50,13 +68,24 @@ pub fn display_error(stdout: &mut RawTerminal<Stdout>, error_message: String){
     write_output(stdout, error_output); 
 }
 
+pub fn display_copy_info(stdout: &mut RawTerminal<Stdout>, command: String){
+    let command_output = format!("\n\r\n\rcopied: {}{}{}{}{} to clipboard\n\r",                
+        color::Bg(color::Rgb(165,93,53)),
+        color::Fg(color::Rgb(255, 255, 153)),
+        command,
+        color::Fg(color::Reset),
+        color::Bg(color::Reset));   
+                         
+    write_output(stdout, command_output);
+}
+
 pub fn write_output(stdout: &mut RawTerminal<Stdout>, console_output: String) {
     let (_width, height) = terminal_size().unwrap();
     if console_output.lines().count() > height as usize {
         display_error(stdout, "Results exceed window height. Keep typing to reduce the number of results.".to_string());
     } else {
-        write!(stdout,"{}{}{}{}\n\r", 
-            termion::clear::All,
+        write!(stdout,"{}{}{}\n\r", 
+            // termion::clear::All,
             cursor::Goto(1, height - console_output.lines().count() as u16),
             console_output,
             termion::clear::CurrentLine)                        
@@ -66,7 +95,6 @@ pub fn write_output(stdout: &mut RawTerminal<Stdout>, console_output: String) {
 
 pub fn update_prompt(stdout: &mut RawTerminal<Stdout>, selected_command: &String, current_mode: &String, query: &String){
     let (_width, height) = terminal_size().unwrap();
-
     let mut prompt: String = format!("{}redOx",
         color::Fg(color::Rgb(165,93,53)));
     if !selected_command.is_empty() {
@@ -100,8 +128,8 @@ pub fn update_prompt(stdout: &mut RawTerminal<Stdout>, selected_command: &String
         stdout.flush().unwrap();
 }
 
-// pub fn clear_display(stdout: &mut RawTerminal<Stdout>){
-//     write!(stdout, "{}", 
-//         termion::clear::All)
-//         .expect("Failed to write to stdout");       
-// }
+pub fn clear_display(stdout: &mut RawTerminal<Stdout>){
+    write!(stdout, "{}", 
+        termion::clear::All)
+        .expect("Failed to write to stdout");       
+}

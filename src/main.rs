@@ -163,7 +163,14 @@ async fn main() {
                 let mut command_output: String = String::new();
                 history_mode = false;
                 if query.starts_with("update") {
-                    command_output = execute_update_command(&db, &query, &mut command_history[selected_command_in_history]).await;
+                    let update_output = execute_update_command(&db, &query, &mut command_history[selected_command_in_history]).await;
+                    command_output = format!("{}\n\rCommand id: {}\n\rauthor: {}\n\rcomment: {}\n\rcommand: {}\n\r",
+                        update_output,
+                        command_history[selected_command_in_history].cmd_id,                  
+                        command_history[selected_command_in_history].author,
+                        command_history[selected_command_in_history].cmnt,                  
+                        command_history[selected_command_in_history].cmd);
+
                     write_output(&mut stdout, command_output);
                 } else if results_selection_mode == true {
                     let mut clipboard = ClipboardContext::new().unwrap();
@@ -184,7 +191,7 @@ async fn main() {
                         selected_command_in_history = command_history.len() - 1;
                     }
                     
-                    command_output = format!("Command id: {} selected\n\rComment: {}\n\rCopied: {}{}{}{}{} to clipboard\n\r",
+                    command_output = format!("Command id: {}\n\rComment: {}\n\rCopied: {}{}{}{}{} to clipboard\n\r",
                         results[selected_result_index].cmd_id,
                         results[selected_result_index].cmnt,                  
                         color::Bg(color::Rgb(165,93,53)),
@@ -195,7 +202,7 @@ async fn main() {
                     write_output(&mut stdout, command_output);
                     results_selection_mode = false;
                     search_mode = false;                    
-                } else if query.starts_with("history") {
+                } else if query.starts_with("hist") {
                     if command_history.len() > 0 {
                         results.clear();
                         display_selectable_list(&mut stdout, &mut command_history);
@@ -207,10 +214,10 @@ async fn main() {
                 } else if query.starts_with("info") {
                     if command_history.len() > 0 {
                         command_output = format!("Command id: {}\n\rauthor: {}\n\rcomment: {}\n\rcommand: {}\n\r",
-                        command_history[selected_command_in_history].cmd_id,                  
-                        command_history[selected_command_in_history].author,
-                        command_history[selected_command_in_history].cmnt,                  
-                        command_history[selected_command_in_history].cmd);
+                            command_history[selected_command_in_history].cmd_id,                  
+                            command_history[selected_command_in_history].author,
+                            command_history[selected_command_in_history].cmnt,                  
+                            command_history[selected_command_in_history].cmd);
                         write_output(&mut stdout, command_output); 
                     } else {
                         display_error(&mut stdout, String::from("There isn't a command currently selected."));

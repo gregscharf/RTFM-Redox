@@ -94,13 +94,11 @@ async fn main() {
                 if results.len() > 0 { 
                     if results_selection_mode == false {
                         results_selection_mode = true;
-                        selected_result_index = results.len();
-                    }             
-                  
-                    if selected_result_index > 0 {
-                        selected_result_index -= 1;
-                        highlight_search_result(&mut stdout,selected_result_index, &mut results);    
+                        selected_result_index = results.len() - 1;
+                    } else {             
+                        selected_result_index = (selected_result_index + results.len() - 1) % results.len();
                     }
+                    highlight_search_result(&mut stdout,selected_result_index, &mut results); 
                 }
             }
             Ok(Key::Down) => {// Move down in results             
@@ -108,12 +106,10 @@ async fn main() {
                     if results_selection_mode == false {
                         results_selection_mode = true;
                         selected_result_index = 0;
-                    }  
-
-                    if selected_result_index < results.len() - 1 {
-                        selected_result_index += 1;
-                        highlight_search_result(&mut stdout,selected_result_index, &mut results); 
+                    } else { 
+                        selected_result_index = (selected_result_index + 1) % results.len();
                     }
+                    highlight_search_result(&mut stdout,selected_result_index, &mut results);
                 }
             }   
             Ok(Key::Ctrl('c')) => {// Paste text from the clipboard, needed for adding content to the database            

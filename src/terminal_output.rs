@@ -48,21 +48,27 @@ pub fn display_selectable_list(stdout: &mut RawTerminal<Stdout>, selectable_list
 pub fn display_command_info(stdout: &mut RawTerminal<Stdout>, command: Command, variables: &mut Variables){
     clear_display(stdout);
     let command_variables = variables.extract_variables_from_command(&command.cmd);
-    let command_output = format!("Command id: {}\n\rauthor: {}\n\rcomment: {}\n\rcommand: {}\n\r\n\rVariables\n\r----------------------------\n\r{}\n\r",
+    let mut variable_output = String::new();
+    if !command_variables.is_empty() {
+        variable_output = format!("\n\r\n\rVariables\n\r----------------------------\n\r{}", command_variables);
+    }
+    let command_output = format!("Command id: {}\n\rauthor: {}\n\rcomment: {}\n\rcommand: {}\n\r{}\n\r",
         command.cmd_id,                  
         command.author,
         command.cmnt,                  
         command.cmd,
-        command_variables);
+        variable_output);
     write_output(stdout, command_output); 
 }
 
 pub fn display_user_variables(stdout: &mut RawTerminal<Stdout>, variables: &mut Variables){
     clear_display(stdout);
-    let user_variables = variables.printable_variable_list(variables.user_variables.clone());
-    let command_output = format!("\n\rUser Variables\n\r----------------------------\n\r{}\n\r",
-        user_variables);
-    write_output(stdout, command_output); 
+    let user_variables = variables.get_printable_variable_list(variables.user_variables.clone());
+    if !user_variables.is_empty(){
+        let command_output = format!("\n\rUser Variables\n\r----------------------------\n\r{}\n\r",
+            user_variables);
+        write_output(stdout, command_output); 
+    }
 }
 
 

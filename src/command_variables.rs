@@ -33,11 +33,17 @@ pub mod variables {
         }
 
         pub fn replace_variables_in_command(&mut self, command: &str) -> String {
-            let re = RegexBuilder::new(r"(?i)\\?\[([^\[\]]+)\]").case_insensitive(true).build().unwrap();
+            let re = RegexBuilder::new(r"(?i)\\?\[([^\[\]]+)\]")
+                .build()
+                .unwrap();
             let replaced = re.replace_all(command, |caps: &regex::Captures<'_>| {
                 if let Some(key) = caps.get(1) {
-                    let key_str = key.as_str();
-                    if let Some(value) = self.user_variables.get(key_str) {
+                    let key_str = key.as_str().to_lowercase();
+                    if let Some(value) = self.user_variables
+                        .iter()
+                        .find(|(k, _)| k.eq_ignore_ascii_case(&key_str))
+                        .map(|(_, v)| v)
+                    {
                         return value.to_string();
                     }
                 }
@@ -46,25 +52,27 @@ pub mod variables {
             replaced.into_owned()
         }
 
-        pub fn extract_variables_from_command(&mut self, command: &String) -> String {
-            //exclude digits since there are commands that have syntax with [] in them
+        pub fn extract_variables_from_command(&mut self, command: &str) -> String {
             let re = Regex::new(r"\[([^\[\]0-9]+)\]").unwrap();
             self.command_variables.clear();
             for capture in re.captures_iter(command) {
                 if let Some(value) = capture.get(1) {
-                    let key = value.as_str().to_owned().to_uppercase();
+                    let key = value.as_str().to_owned();
                     let mut default_value = String::new();
-                    // If there is a corresponding user variable already set
-                    if let Some(value) = self.user_variables.get(&key) {
+                    if let Some(value) = self.user_variables
+                        .iter()
+                        .find(|(k, _)| k.eq_ignore_ascii_case(&key))
+                        .map(|(_, v)| v)
+                    {
                         default_value = value.to_string();
-                    } 
-                    self.command_variables.insert(key,default_value);
+                    }
+                    self.command_variables.insert(key, default_value);
                 }
             }
             let printable_list = self.printable_variable_list(self.command_variables.clone());
-            
             printable_list
         }
+
     }
 }
 

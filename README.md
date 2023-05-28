@@ -2,7 +2,7 @@
 The goal of this project is to create an easier to use and updated replacement for [RTFM](https://github.com/leostat/rtfm) or something to run in the terminal that works like [Rev Shells](https://revshells.com/) or the [HackTools](https://addons.mozilla.org/en-US/firefox/addon/hacktools/) browser plugin. This started as a project to help improve my proficiency with Rust. I'm still new to it so I'm sure there are some poor Rust coding practices but I will be refactoring the code as I go.  I'm currently using the sqlite database that [RTFM](https://github.com/leostat/rtfm) uses but that needs some updating and new syntax needs to be added since that hasn't been touched in almost 6 years.  
 
 ## Working Features
-- **note** Sometimes on kali the backspace/delete key requires Ctrl+Backspace/Delete to delete previous typed characters in terminal.  And in some cases Ctrl+h stops working so I've added a 'hist' command for when that occurs until I figure out some of the intermittent key stroke issues.  
+- **note** Sometimes on Kali the backspace/delete key requires Ctrl+Backspace/Delete to delete previous typed characters in terminal.  And in some cases Ctrl+h stops working so I've added a 'hist' command for when that occurs until I figure out some of the intermittent key stroke issues.  
 - Ctrl+r to dynamically search the RTFM database for commands as you type and display those in a selectable list.  Works similarly to using Ctrl+r to search through terminal history.
 - Ctrl+h to display a history of previously selected commands from the current session in a selectable list. 
 - up/down arrow keys to highlight a command from the current search or from the history. Pressing return copies that command to the clipboard.  
@@ -13,7 +13,7 @@ The goal of this project is to create an easier to use and updated replacement f
 ## Currently Working On
 - 'set' command for variable replacement when selecting a command that has placeholders for LHOST, LPORT, etc.
 - In 'info' show variables that need to be set and if they are set display their current value.
-- I'm just going to update and edit the database through my own usage of the tool because I'm not interested in doing data entry.
+- I'm just going to update and edit the database as I use the tool because I'm not interested in doing data entry.
 
 ## To Add
 - [ ] Set variables in the CLI to automatically replace placeholders in commands for things like Remote Host, Local Host, Local Port, etc similar to msfconsole.  

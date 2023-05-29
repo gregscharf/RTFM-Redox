@@ -43,13 +43,17 @@ I'm currently using the sqlite database that [RTFM](https://github.com/leostat/r
 - [ ] Switch to rusqlite and dump sqlx to avoid openssl static build nightmare.
 
 ## Build/Install
-Until I add a release build. If the linker fails during build see Issues below.
+Until I remove the openssl dependency required by sqlx and am able to build a statically linked release.
 ```bash
 #if you don't already have rust installed
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
 git clone https://github.com/gregscharf/RTFM-Redox.git
 cargo run
+
+# or to build a release
+cargo build -r
+# and then move snips.db into whichever directory you copy the release binary
 ```
 
 **Issues**
@@ -58,5 +62,7 @@ Debian distributions: If the linker fails during build, install the following pa
 sudo apt install libxcb1-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev
 ```
 Arch: No issues
+
 Mac M1: Screen flicker when using up/down arrows 
+
 Windows: Currently not supported because Termion does not work on windows.  I'll switch to crossterm at some point.

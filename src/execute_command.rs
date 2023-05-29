@@ -74,8 +74,9 @@ pub async fn search_commands(db: &SqlitePool, stdout: &mut RawTerminal<Stdout>, 
 pub async fn execute_update_command(db: &SqlitePool, stdout: &mut RawTerminal<Stdout>, query: &String, command: &mut command::Command, variables: &mut command_variables::variables::Variables) -> bool {
     let command_values: Vec<&str> = query.split_whitespace().collect();
     if let Some(table_column) = command_values.get(1) {
-        if let Some(content) = command_values.get(2) {
+        if command_values.len() > 2 {
             let sql_query: & str;
+            let content = command_values[2..].join(" ");
             if table_column.contains("comment") {
                 sql_query = "UPDATE TblCommand SET cmnt = ? where CmdID = ?";     
                 command.cmnt = content.to_string();  
@@ -92,12 +93,12 @@ pub async fn execute_update_command(db: &SqlitePool, stdout: &mut RawTerminal<St
             }
 
             sqlx::query(&sql_query)
-                .bind(content)
+                .bind(content.clone())
                 .bind(command.cmd_id)
                 .execute(db)
                 .await
                 .unwrap();
-    
+           
             let command_output: String = format!("Updated {}: {}\n\r",
                 table_column,
                 content);
@@ -126,7 +127,7 @@ pub async fn execute_command(db: &SqlitePool, command: &String) -> String{
             } else if command.contains("search"){
                 output = "Ctrl+r\t\t Enter quick search mode to dynamically find commands as you type.\n\rEsc\t\t Exit search mode.\n\rOr use 'search' command followed by a term to search results.";             
             } else {
-                output = "Ctrl+r\t\t Enter quick search mode to dynamically find commands as you type.\n\rCtrl+c\t\t Copy currently selected command to clipboard.\n\rCrtl+h or hist\t Display selectable history of already selected commands.\n\rCtrl+v\t\t Paste from clipboard\n\rinfo\t\t Display info on the currently selected command.\n\renv\t\t Show currently set user variables\n\radd\t\t Add a command to the database e.g. 'add -c stty raw -echo;fg'\n\rupdate\t\t update database columns of currently selected command e.g. 'update comment bash reverse shell'.\n\rEsc\t\t Exit current mode.\n\rhelp\t\t Display help\n\rCtrl+q or exit\t Exit redOx.\n\r"; 
+                output = "Ctrl+r\t\t Enter quick search mode to dynamically find commands as you type.\n\rCtrl+c\t\t Copy currently selected command to clipboard.\n\rCtrl+u\t\t Url-encode and then copy currently selected command to clipboard.\n\rCrtl+h or hist\t Display selectable history of already selected commands.\n\rCtrl+v\t\t Paste from clipboard\n\rinfo\t\t Display info on the currently selected command.\n\renv\t\t Show currently set user variables\n\radd\t\t Add a command to the database e.g. 'add -c stty raw -echo;fg'\n\rupdate\t\t update database columns of currently selected command e.g. 'update comment bash reverse shell'.\n\rEsc\t\t Exit current mode.\n\rhelp\t\t Display help\n\rCtrl+q or exit\t Exit redOx.\n\r"; 
             }
         },     
         s if s.starts_with("add") => {

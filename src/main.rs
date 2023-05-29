@@ -113,7 +113,35 @@ async fn main() {
                     highlight_search_result(&mut stdout,selected_result_index, &mut results);
                 }
             }   
-            Ok(Key::Ctrl('c')) => {// Paste text from the clipboard, needed for adding content to the database            
+
+            Ok(Key::Ctrl('u')) => {// Url encode and then copy text to the clipboard             
+                if command_history.len() > 0 {
+                    let command = variables.replace_variables_in_command(&results[selected_result_index].cmd);
+                    let mut encoded = String::new();
+                
+                    for byte in command.bytes() {
+                        match byte {
+                            // Alphanumeric characters and a few special characters are not encoded
+                            b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'-' | b'_' | b'.' | b'~' => {
+                                encoded.push(byte as char);
+                            }
+                            // All other characters are percent-encoded
+                            _ => {
+                                encoded.push('%');
+                                encoded.push_str(&format!("{:02X}", byte));
+                            }
+                        }
+                    }
+                    
+                    let mut clipboard = ClipboardContext::new().unwrap();
+                    clipboard.set_contents(encoded.clone()).unwrap();                                        
+                    display_command_info(&mut stdout, command_history[selected_command_in_history].clone(), &mut variables);
+                    display_copy_info(&mut stdout, encoded);
+                } else {
+                    display_error(&mut stdout, String::from("There isn't a command currently selected."));
+                }                  
+            },             
+            Ok(Key::Ctrl('c')) => {// Copy the current command to the clipboard            
                 if command_history.len() > 0 {
                     let command = variables.replace_variables_in_command(&results[selected_result_index].cmd);
                     let mut clipboard = ClipboardContext::new().unwrap();

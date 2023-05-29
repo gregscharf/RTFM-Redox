@@ -45,7 +45,7 @@ pub fn display_selectable_list(stdout: &mut RawTerminal<Stdout>, selectable_list
 }
 
 pub fn display_command_info(stdout: &mut RawTerminal<Stdout>, command: Command, variables: &mut Variables){
-    clear_display(stdout);
+    // clear_display(stdout);
     let command_variables = variables.extract_variables_from_command(&command.cmd);
     let mut variable_output = String::new();
     if !command_variables.is_empty() {

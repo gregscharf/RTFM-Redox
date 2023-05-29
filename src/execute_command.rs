@@ -1,8 +1,8 @@
 use sqlx::SqlitePool;
 use termion::raw::RawTerminal;
 use std::io::Stdout;
-use crate::terminal_output::display_error;
-use crate::terminal_output::display_selectable_list;
+use crate::command_variables;
+use crate::terminal_output::{display_error, display_command_info, display_selectable_list, write_output};
 
 pub mod command {
     use sqlx::Row;
@@ -71,47 +71,50 @@ pub async fn search_commands(db: &SqlitePool, stdout: &mut RawTerminal<Stdout>, 
         return results;
 }
 
-pub async fn execute_update_command(db: &SqlitePool, command: &String, table_row: &mut command::Command) -> String {
+pub async fn execute_update_command(db: &SqlitePool, stdout: &mut RawTerminal<Stdout>, query: &String, command: &mut command::Command, variables: &mut command_variables::variables::Variables) -> bool {
+    let command_values: Vec<&str> = query.split_whitespace().collect();
+    if let Some(table_column) = command_values.get(1) {
+        if let Some(content) = command_values.get(2) {
+            let sql_query: & str;
+            if table_column.contains("comment") {
+                sql_query = "UPDATE TblCommand SET cmnt = ? where CmdID = ?";     
+                command.cmnt = content.to_string();  
+            } else if table_column.contains("author"){
+                sql_query = "UPDATE TblCommand SET author = ? where CmdID = ?";
+                command.author = content.to_string();
+        
+            } else if table_column.contains("command"){
+                sql_query = "UPDATE TblCommand SET Cmd = ? where CmdID = ?";
+                command.cmd = content.to_string();
+            } else {   
+                display_error(stdout, "Update failed.".to_string());   
+                return false;
+            }
 
-    let content: &str;
-    let column: &str;
-    let sql_query: & str;
-    if command.contains("comment") {
-        column = "comment";
-        let start_index = command.find("comment").unwrap() + "comment".len() + 1;
-        content = &command[start_index..];
-        sql_query = "UPDATE TblCommand SET cmnt = ? where CmdID = ?";     
-        table_row.cmnt = content.to_string();  
-    } else if command.contains("author"){
-        column = "author";
-        let start_index = command.find("author").unwrap() + "author".len() + 1;
-        content = &command[start_index..];
-        sql_query = "UPDATE TblCommand SET author = ? where CmdID = ?";
-        table_row.author = content.to_string();
-
-    } else if command.contains("command"){
-        column = "command";
-        let start_index = command.find("command").unwrap() + "command".len() + 1;
-        content = &command[start_index..];
-        sql_query = "UPDATE TblCommand SET Cmd = ? where CmdID = ?";
-        table_row.cmd = content.to_string();
-    } else {      
-        return String::from("Invalid update.");
-    }
+            sqlx::query(&sql_query)
+                .bind(content)
+                .bind(command.cmd_id)
+                .execute(db)
+                .await
+                .unwrap();
     
-    sqlx::query(&sql_query)
-        .bind(content)
-        .bind(table_row.cmd_id)
-        .execute(db)
-        .await
-        .unwrap();
-
-    let command_output: String = format!("Updated {}: {}\n\r",
-        column,
-        content);
-
-    return command_output;
-
+            let command_output: String = format!("Updated {}: {}\n\r",
+                table_column,
+                content);
+                display_command_info(stdout, command.clone(), variables);
+                write_output(stdout, command_output);
+            return true;
+        } else {
+            let error: String = format!("You must supply a value for column {}.\n\rExample: update {} content to add",
+                table_column,
+                table_column);           
+            display_error(stdout, error);
+            return false;
+        }
+    } else {
+        display_error(stdout, "You must supply a column name. See the currently selected commands's 'info'".to_string());
+        return false;
+    }
 }
 
 pub async fn execute_command(db: &SqlitePool, command: &String) -> String{
@@ -129,6 +132,7 @@ pub async fn execute_command(db: &SqlitePool, command: &String) -> String{
         s if s.starts_with("add") => {
             if command.contains(" -c "){
                 let start_index = command.find("-c").unwrap() + 3;
+                //TODO: check if there is a -d after and if so set that as the ending index for our command
                 let mut end_index = command.len();
                 let mut description = "None";
                 if command.contains(" -d ") {

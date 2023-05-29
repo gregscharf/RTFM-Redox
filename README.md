@@ -14,6 +14,7 @@ I'm currently using the sqlite database that [RTFM](https://github.com/leostat/r
 
 ## To Add
 - [x] Set variables in the CLI to automatically replace placeholders in commands for things like Remote Host, Local Host, Local Port, etc similar to msfconsole.  
+- [ ] After adding a command select it as the current command.
 - [ ] Add config file to store user set variables and other as yet to be determined configurations.
     - This might be the place for related commands that are often used together. Add ability to save the commands in the current history.  Would need a way to quickly delete a command in the current history e.g. highlight the command and then Ctrl+d to remove it. Also need to be able to completely clear the current history.  User would also need to supply a name for the history before it is saved to the config file.  These would be stored as an array of row IDs from TblCommand. Use the 'config' crate to facilitate this.  
 - [x] Add 'env' command to display all user set variables.

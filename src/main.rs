@@ -54,6 +54,7 @@ async fn main() {
     let command_output: String = execute_command(&db, &"help".to_string()).await;
     write_output(&mut stdout, command_output);
 
+    //TODO: Add a cleaner, more consistent method for parsing and executing commands.
     loop {
         let mut selected_command: String = String::from("");
         let mut current_mode: String = String::from("");
@@ -157,6 +158,7 @@ async fn main() {
             }
             Ok(Key::Ctrl('h')) => {// Display selectable list of past commands
                 if command_history.len() > 0 {
+                    clear_display(&mut stdout);
                     results.clear();
                     display_selectable_list(&mut stdout, &mut command_history);
                     results = command_history.clone();
@@ -171,9 +173,9 @@ async fn main() {
                 history_mode = false;
                 if query.starts_with("update") { //update command
                     clear_display(&mut stdout);
-                    let update_output = execute_update_command(&db, &query, &mut command_history[selected_command_in_history]).await;
-                    write_output(&mut stdout, update_output);
-                    display_command_info(&mut stdout, command_history[selected_command_in_history].clone(), &mut variables);
+                    let _update_output = execute_update_command(&db, &mut stdout, &query, &mut command_history[selected_command_in_history], &mut variables).await;
+                    // write_output(&mut stdout, update_output);
+                    // display_command_info(&mut stdout, command_history[selected_command_in_history].clone(), &mut variables);
                 } else if results_selection_mode == true { //pressed enter while arrowing through selectable list
                     let command = variables.replace_variables_in_command(&results[selected_result_index].cmd);
                     let mut clipboard = ClipboardContext::new().unwrap();
@@ -193,12 +195,13 @@ async fn main() {
                         command_history.push(results[selected_result_index].clone());
                         selected_command_in_history = command_history.len() - 1;
                     }
-
+                    clear_display(&mut stdout);
                     display_command_info(&mut stdout, results[selected_result_index].clone(), &mut variables);
                     display_copy_info(&mut stdout, command);
                     results_selection_mode = false;
                     search_mode = false;                    
                 } else if query.starts_with("hist") { //history command
+                    clear_display(&mut stdout);
                     if command_history.len() > 0 {
                         results.clear();
                         display_selectable_list(&mut stdout, &mut command_history);
@@ -231,6 +234,7 @@ async fn main() {
                         display_error(&mut stdout, "You must supply a variable".to_string());
                     }
                 } else if query.starts_with("info") { //info command
+                    clear_display(&mut stdout);
                     if command_history.len() > 0 {
                         display_command_info(&mut stdout, command_history[selected_command_in_history].clone(), &mut variables)
                     } else {
@@ -241,6 +245,7 @@ async fn main() {
                 } else if query.starts_with("exit") {
                     break;
                 } else {
+                    clear_display(&mut stdout);
                     command_output = execute_command(&db, &query).await;
                     write_output(&mut stdout, command_output);
                 }                

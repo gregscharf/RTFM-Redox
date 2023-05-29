@@ -12,6 +12,8 @@ I'm currently using the sqlite database that [RTFM](https://github.com/leostat/r
 - 'update [column] [content]' to update a database column in the currently selected command.  At the moment the only columns to update are 'command', 'comment' and 'author'. Examples: "update comment spawn a pty via python3", "update author greg scharf", "update command python3 -c 'import pty;pty.spawn("/bin/bash")'".  
 - 'set' to set variables that will be replaced in commands that have placeholders such as [LHOST], [RHOST], etc. Example: 'set LHOST 10.200.13.3'
 
+![demo](./redox-demo.gif)
+
 ## To Add
 - [x] Set variables in the CLI to automatically replace placeholders in commands for things like Remote Host, Local Host, Local Port, etc similar to msfconsole.  
 - [ ] After adding a command select it as the current command.

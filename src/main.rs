@@ -213,6 +213,7 @@ async fn main() {
                 } else if query.starts_with("env"){ //show user set variables
                     display_user_variables(&mut stdout, &mut variables);    
                 } else if query.starts_with("set") { //set variables
+                    clear_display(&mut stdout);
                     let query_values: Vec<&str> = query.split_whitespace().collect();
                     if let Some(variable) = query_values.get(1) {
                         if let Some(value) = query_values.get(2) {

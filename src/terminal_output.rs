@@ -44,7 +44,6 @@ pub fn display_selectable_list(stdout: &mut RawTerminal<Stdout>, selectable_list
     write_output(stdout, console_output); 
 }
 
-
 pub fn display_command_info(stdout: &mut RawTerminal<Stdout>, command: Command, variables: &mut Variables){
     clear_display(stdout);
     let command_variables = variables.extract_variables_from_command(&command.cmd);
@@ -70,7 +69,6 @@ pub fn display_user_variables(stdout: &mut RawTerminal<Stdout>, variables: &mut 
         write_output(stdout, command_output); 
     }
 }
-
 
 pub fn display_error(stdout: &mut RawTerminal<Stdout>, error_message: String){
     clear_display(stdout);

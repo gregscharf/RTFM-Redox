@@ -1,5 +1,4 @@
-
-The goal of this project is to create an easier to use and updated replacement for [RTFM](https://github.com/leostat/rtfm) (inspired by the book, Red Team Field Manual) as well as something that works similarly to [Rev Shells](https://revshells.com/) or the [HackTools](https://addons.mozilla.org/en-US/firefox/addon/hacktools/) browser plugin.  All without the need to leave your terminal to search through notes or open a browser window, or run a python script with a lot of switches you never remember.  
+The goal of this project is to create an easier to use and updated replacement for [RTFM](https://github.com/leostat/rtfm) (inspired by the book, Red Team Field Manual) as well as something that works similarly to [Rev Shells](https://revshells.com/) or the [HackTools](https://addons.mozilla.org/en-US/firefox/addon/hacktools/) browser plugin.  All without the need to leave your terminal to search through notes or open a browser window, or run a python script with a lot of switches you'll never remember.  
 
 I'm currently using the sqlite database that [RTFM](https://github.com/leostat/rtfm) uses but that hasn't been updated in almost 6 years so I will be adding new commands and pushing the edited db file to the repository as I use this tool myself.    
 
@@ -40,23 +39,16 @@ I'm currently using the sqlite database that [RTFM](https://github.com/leostat/r
 - [x] Handle error when output exceeds terminal window so application doesn't crash on Arch.
     - Needs a much better solution
 - [ ] Sometimes backspace/delete key requires Ctrl+Backspace/Delete to delete typed character preceding cursor.    
+- [ ] Switch to rusqlite and dump sqlx to avoid openssl static build nightmare.
 
 ## Build/Install
-
-### Linux
-
-To build and use until I add release builds... if the linker fails during build see Issues below.
+Until I add a release build. If the linker fails during build see Issues below.
 ```bash
+#if you don't already have rust installed
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
 git clone https://github.com/gregscharf/RTFM-Redox.git
 cargo run
-
-# Or if you want to build a release
-cargo build -r
-mkdir /opt/redox
-cp target/release/redox /opt/redox/
-cp snibs.db /opt/redox/
-cd /opt/redox
-./redox
 ```
 
 **Issues**
@@ -66,4 +58,4 @@ sudo apt install libxcb1-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0
 ```
 Arch: No issues
 Mac M1: Screen flicker when using up/down arrows 
-Windows: Currently not supported because Termion does not work on windows.
+Windows: Currently not supported because Termion does not work on windows.  I'll switch to crossterm at some point.

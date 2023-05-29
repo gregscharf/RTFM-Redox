@@ -207,9 +207,9 @@ async fn main() {
                     } else {
                         display_error(&mut stdout, String::from("History is currently empty."));
                     }
-                } else if query.starts_with("env"){
+                } else if query.starts_with("env"){ //show user set variables
                     display_user_variables(&mut stdout, &mut variables);    
-                } else if query.starts_with("set") {
+                } else if query.starts_with("set") { //set variables
                     let query_values: Vec<&str> = query.split_whitespace().collect();
                     if let Some(variable) = query_values.get(1) {
                         if let Some(value) = query_values.get(2) {
@@ -235,8 +235,7 @@ async fn main() {
                         display_command_info(&mut stdout, command_history[selected_command_in_history].clone(), &mut variables)
                     } else {
                         display_error(&mut stdout, String::from("There isn't a command currently selected."));
-                    }    
-                         
+                    }                            
                 } else if query.starts_with("search") {
                     results = search_commands(&db, &mut stdout, &query).await;
                 } else if query.starts_with("exit") {

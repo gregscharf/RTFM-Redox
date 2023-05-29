@@ -114,7 +114,6 @@ pub async fn execute_update_command(db: &SqlitePool, command: &String, table_row
 
 }
 
-
 pub async fn execute_command(db: &SqlitePool, command: &String) -> String{
     let output;
     match command.as_str() {

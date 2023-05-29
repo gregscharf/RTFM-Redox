@@ -4,7 +4,7 @@ I'm currently using the sqlite database that [RTFM](https://github.com/leostat/r
 
 
 ## Usage
-```bash
+```
 Ctrl+r           Enter quick search mode to dynamically find commands as you type.
 Ctrl+c           Copy currently selected command to clipboard.
 Ctrl+u           URL-encode and then copy currently selected command to clipboard.

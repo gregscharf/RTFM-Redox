@@ -16,22 +16,21 @@ I'm currently using the sqlite database that [RTFM](https://github.com/leostat/r
 
 ## To Add
 - [x] Set variables in the CLI to automatically replace placeholders in commands for things like Remote Host, Local Host, Local Port, etc similar to msfconsole.  
-- [ ] After adding a command select it as the current command.
+- [ ] After adding a new command select it as the current command.
 - [ ] Add config file to store user set variables and other as yet to be determined configurations.
     - This might be the place for related commands that are often used together. Add ability to save the commands in the current history.  Would need a way to quickly delete a command in the current history e.g. highlight the command and then Ctrl+d to remove it. Also need to be able to completely clear the current history.  User would also need to supply a name for the history before it is saved to the config file.  These would be stored as an array of row IDs from TblCommand. Use the 'config' crate to facilitate this.  
 - [x] Add 'env' command to display all user set variables.
 - [ ] Ctrl+d while in selectable list deletes the item from the database, or if in history mode, deletes the item from the current history.
-- [ ] Left/right arrow keys to edit already typed command.  Only useful when adding to or updating the database.
+- [ ] Left/right arrow keys to edit already typed or pasted in command.  Really only useful when adding to or updating the database.
 - [ ] Make use of tags already implemented in the database to display selectable list of grouped items. For example, 'reverse shells linux' to display all commands in the database grouped under that tag.  tags already in the database are probably a little too general to be useful e.g. 'bash', 'windows'.  Also need a function to display all tags in the database as a selectable list.
 - [x] Add ability to update the database columns of the currently selected command.
 - [x] Display command's comment and any other info after it has been selected.
 - [x] Add a history feature, ctrl+h or type 'history' to show a selectable list of previously copied commands.
 - [x] Show currently selected command in prompt, type info to show all columns to allow for easier updating of the database within the CLI.
 - [ ] Implement [RTFM](https://github.com/leostat/rtfm)'s solution for creating/updating the database
-- [ ] Update the database with newer commands for things like Bloodhound,ffuf,feroxbuster,Rubeus,Crackmapexec,Chisel,SSHuttle, etc.
+- [ ] Continue to updating database with newer commands for things like Bloodhound,ffuf,feroxbuster,Rubeus,Crackmapexec,Chisel,SSHuttle, etc.
 - [ ] Add a better method for generating help content with the prettytable crate.
 - [x] Allow selection mode to wrap up or down
-- [ ] Fix errors that occur when attempting to create a statically linked linux release
 - [ ] Switch from termion to crossterm for Windows support.
 - [ ] Add search capability for text based/markdown notes.    
     - Root directory for user's notes will be supplied in a CLI variable.
@@ -41,21 +40,18 @@ I'm currently using the sqlite database that [RTFM](https://github.com/leostat/r
 - [ ] Add buffer to scroll through result output that doesn't fit within terminal windows.
 - [x] Handle error when output exceeds terminal window so application doesn't crash on Arch.
     - Needs a much better solution
-- [ ] Sometimes backspace/delete key requires Ctrl+Backspace/Delete to delete typed character preceding cursor.    
-- [ ] Switch to rusqlite and dump sqlx to avoid openssl static build nightmare.
+- [ ] Sometimes backspace/delete key requires Ctrl+Backspace/Delete to delete typed character preceding cursor.
+- [ ] Switch from termion to crossterm to add support for Windows consoles.      
+- [ ] Switch to rusqlite and dump sqlx to avoid openssl static build nightmare so I can create a release build.
 
-## Build/Install
-Until I remove the openssl dependency required by sqlx and am able to build a statically linked release.
+## To Use
 ```bash
 #if you don't already have rust installed
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
 git clone https://github.com/gregscharf/RTFM-Redox.git
-cargo run
-
-# or to build a release
-cargo build -r
-# and then move snips.db into whichever directory you copy the release binary
+cd RTFM-Redox
+cargo run --release
 ```
 
 **Issues**

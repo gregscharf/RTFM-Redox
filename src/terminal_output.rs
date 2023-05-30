@@ -97,7 +97,7 @@ pub fn write_output(stdout: &mut RawTerminal<Stdout>, console_output: String) {
     } else {
         write!(stdout,"{}{}{}\n\r", 
             // termion::clear::All,
-            cursor::Goto(1, height - console_output.lines().count() as u16),
+            cursor::Goto(1, height - console_output.lines().count() as u16 + 1),
             console_output,
             termion::clear::CurrentLine)                        
             .expect("Failed to write to stdout"); 

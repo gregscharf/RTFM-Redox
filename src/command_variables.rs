@@ -22,7 +22,7 @@ pub mod variables {
         pub fn get_printable_variable_list(&mut self, variables: HashMap<String,String>) -> String{
             let mut output = String::new();
             for (key, value) in variables {
-                output.push_str(&format!("{}     \t: {}\n\r", key, if value.is_empty() { "(empty)" } else { &value }));
+                output.push_str(&format!("{:<width$}: {}\n\r", key, if value.is_empty() { "(empty)" } else { &value },width=20));
             }
             output            
         }

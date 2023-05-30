@@ -5,7 +5,7 @@ use execute_command::{execute_command,search_commands, execute_update_command,co
 mod command_variables;
 use sqlx::{migrate::MigrateDatabase,Sqlite, SqlitePool};
 use std::io::stdout;
-use termion::event::Key;
+use termion::{event::Key, clear};
 use termion::input::TermRead;
 use termion::raw::IntoRawMode;
 use clipboard::{ClipboardContext,ClipboardProvider};
@@ -116,23 +116,22 @@ async fn main() {
 
             Ok(Key::Ctrl('u')) => {// Url encode and then copy text to the clipboard             
                 if command_history.len() > 0 {
+                    clear_display(&mut stdout);
                     let command = variables.replace_variables_in_command(&results[selected_result_index].cmd);
-                    let mut encoded = String::new();
-                
+                    let mut encoded = String::new();                
                     for byte in command.bytes() {
                         match byte {
                             // Alphanumeric characters and a few special characters are not encoded
                             b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'-' | b'_' | b'.' | b'~' => {
                                 encoded.push(byte as char);
                             }
-                            // All other characters are percent-encoded
+                            // Percent-encoded all other characters
                             _ => {
                                 encoded.push('%');
                                 encoded.push_str(&format!("{:02X}", byte));
                             }
                         }
                     }
-                    
                     let mut clipboard = ClipboardContext::new().unwrap();
                     clipboard.set_contents(encoded.clone()).unwrap();                                        
                     display_command_info(&mut stdout, command_history[selected_command_in_history].clone(), &mut variables);
@@ -143,6 +142,7 @@ async fn main() {
             },             
             Ok(Key::Ctrl('c')) => {// Copy the current command to the clipboard            
                 if command_history.len() > 0 {
+                    clear_display(&mut stdout);
                     let command = variables.replace_variables_in_command(&results[selected_result_index].cmd);
                     let mut clipboard = ClipboardContext::new().unwrap();
                     clipboard.set_contents(command.clone()).unwrap();                                        

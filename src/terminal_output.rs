@@ -51,7 +51,7 @@ pub fn display_command_info(stdout: &mut RawTerminal<Stdout>, command: Command, 
     if !command_variables.is_empty() {
         variable_output = format!("\n\r\n\rVariables\n\r----------------------------\n\r{}", command_variables);
     }
-    let command_output = format!("Command id: {}\n\rauthor: {}\n\rcomment: {}\n\rcommand: {}\n\r{}\n\r",
+    let command_output = format!("Command id: {}\n\rauthor: {}\n\rcomment: {}\n\rcommand: {}\n\r{}\n\r ",
         command.cmd_id,                  
         command.author,
         command.cmnt,                  
@@ -80,7 +80,7 @@ pub fn display_error(stdout: &mut RawTerminal<Stdout>, error_message: String){
 }
 
 pub fn display_copy_info(stdout: &mut RawTerminal<Stdout>, command: String){
-    let command_output = format!("\n\r\n\rcopied: {}{}{}{}{} to clipboard\n\r",                
+    let command_output = format!("copied: {}{}{}{}{} to clipboard\n\r",  
         color::Bg(color::Rgb(165,93,53)),
         color::Fg(color::Rgb(255, 255, 153)),
         command,

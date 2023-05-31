@@ -1,5 +1,5 @@
 
-pub async fn execute_command(command: &String) -> String{
+pub async fn execute_command(command: &String) -> Result<String, String> {
     let output;
     match command.as_str() {
         s if s.starts_with("help") => {
@@ -12,8 +12,8 @@ pub async fn execute_command(command: &String) -> String{
             }
         }
         _ => {
-            output = "Invalid command";
+            return Err("Invalid command".to_string())
         }
     }
-    return format!("{}\n\r",output);
+    return Ok(format!("{}\n\r",output));
 }

@@ -51,7 +51,7 @@ pub mod database {
             self.commands.clone()
         }
 
-        pub async fn add_command(&mut self, query: &String) -> Result<String, sqlx::Error>{
+        pub async fn add_command(&mut self, query: &String) -> Result<Vec<command_table::Command>, sqlx::Error>{
             let start_index = query.find("-c").unwrap() + 3;
             //TODO: check if there is a -d after and if so set that as the ending index for our command
             let mut end_index = query.len();
@@ -63,7 +63,7 @@ pub mod database {
             }
             let command = &query[start_index..end_index];
 
-            sqlx::query(
+            let ex_query = sqlx::query(
                 "INSERT INTO TblCommand (Cmd, cmnt) VALUES (?, ?)",
                 ).bind(command)
                 .bind(description)
@@ -71,9 +71,10 @@ pub mod database {
                 .await
                 .unwrap();
 
-            let command_output: String = format!("Inserted command: {} comment: {}\n\r",command, description);
-            
-            Ok(command_output)      
+            let row_id = ex_query.last_insert_rowid();
+            let new_command = command_table::Command { cmd_id: row_id as i32, cmd: command.to_string(), cmnt: description.to_string(), author: String::from("niaiserie") };
+            self.commands.push(new_command.clone());           
+            Ok(self.commands.clone())      
         }
 
         pub async fn update_command(&mut self, query: &String, command: &mut command_table::Command) -> Result<String, sqlx::Error> {

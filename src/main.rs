@@ -37,9 +37,9 @@ async fn main() {
     let mut selected_result_index: usize = 0;
     let mut results_selection_mode: bool = false;
 
-    //Print help when application starts
+    //Clear screen and print help when application starts
     terminal_output.clear_display();
-    let command_output: String = execute_command(&"help".to_string()).await;
+    let command_output: String = execute_command(&"help".to_string()).await.unwrap();
     terminal_output.write_output( command_output);
 
     //TODO: Add a cleaner, more consistent method for parsing and executing commands.
@@ -85,7 +85,7 @@ async fn main() {
                             terminal_output.display_error(String::from("Not Found"));
                         }
                     } else {
-                        let command_output: String = execute_command(&"help".to_string()).await;
+                        let command_output: String = execute_command(&"help".to_string()).await.unwrap();
                         terminal_output.write_output( command_output);                        
                     }                        
                 } 
@@ -186,10 +186,10 @@ async fn main() {
                 results_selection_mode = false;
                 query.clear();
                 terminal_output.clear_display();
-                let command_output: String = execute_command(&"help".to_string()).await;
+                let command_output: String = execute_command(&"help".to_string()).await.unwrap();
                 terminal_output.write_output(command_output);
             }
-            Ok(Key::Ctrl('h')) => {// Display selectable list of past commands
+            Ok(Key::Ctrl('h')) => {// Display selectable list of commands from history
                 if command_history.len() > 0 {
                     terminal_output.clear_display();
                     command_results.clear();
@@ -201,17 +201,40 @@ async fn main() {
                     terminal_output.display_error(String::from("History is currently empty."));
                 }                
             }            
-            Ok(Key::Char('\n')) => {
+            Ok(Key::Char('\n')) => { // Enter key has been pressed, check for valid commands
                 let command_output: String;
                 history_mode = false;
                 if query.starts_with("add") {
                     if query.contains(" -c "){
                         let result = database.add_command(&query).await;
                         match result {
-                            Ok(command_output) => {
-                                // TODO: add the newly added command to results and set as selected
-                                // terminal_output.display_command_info(command_history[selected_command_in_history].clone(), &mut variables);
-                                terminal_output.write_output(command_output);
+                            Ok(commands) => {
+                                command_results = commands;
+                                selected_result_index = command_results.len() -1;
+                                //The rest of this code is duplicated in "selection_mode" so create a function
+                                let command = variables.replace_variables_in_command(&command_results[selected_result_index].cmd);
+                                let mut clipboard = ClipboardContext::new().unwrap();
+                                clipboard.set_contents(command.clone()).unwrap();
+                                //Add new command to command_history if it isn't already in the command_history
+                                //Also set the index
+                                let mut add_to_history: bool = true;
+                                let commands_slice: &[command_table::Command] = &command_history;
+                                for (i, command) in commands_slice.iter().enumerate(){
+                                    if command.cmd_id == command_results[selected_result_index].cmd_id.to_owned(){
+                                        add_to_history = false;
+                                        selected_command_in_history = i;
+                                        break;
+                                    }
+                                }
+                                if add_to_history {
+                                    command_history.push(command_results[selected_result_index].clone());
+                                    selected_command_in_history = command_history.len() - 1;
+                                }
+                                terminal_output.clear_display();
+                                terminal_output.display_command_info( command_results[selected_result_index].clone(), &mut variables);
+                                terminal_output.display_copy_info( command);
+                                results_selection_mode = false;
+                                search_mode = false;  
                             }
                             Err(sqlx_error) => {
                                 match sqlx_error {
@@ -288,6 +311,7 @@ async fn main() {
                     terminal_output.display_user_variables( &mut variables);    
                 } else if query.starts_with("set") { //set variables
                     terminal_output.clear_display();
+ 
                     let query_values: Vec<&str> = query.split_whitespace().collect();
                     if let Some(variable) = query_values.get(1) {
                         if let Some(value) = query_values.get(2) {
@@ -298,9 +322,7 @@ async fn main() {
 
                         if command_history.len() > 0 {                                     
                             terminal_output.display_command_info( command_history[selected_command_in_history].clone(), &mut variables);
-                        }
-
-                        //copy the current command to the clipboard again after setting a variable
+                        }  
                         let command = variables.replace_variables_in_command(&command_history[selected_command_in_history].cmd);
                         let mut clipboard = ClipboardContext::new().unwrap();
                         clipboard.set_contents(command.clone()).unwrap();
@@ -317,23 +339,12 @@ async fn main() {
                     }                            
                 } else if query.starts_with("search") {
                     // results = search_commands(&db, &mut stdout, &query).await;
-                    command_results = database.search_commands(&query).await;
-                    
-                } else if query.starts_with("help") {
-                    if query.contains("add") {
-                        command_output = String::from("To add a command to the database\n\r'add -c command [optional: -d comment]"); 
-                    } else if query.contains("search"){
-                        command_output = String::from("Ctrl+r\t\t Enter quick search mode to dynamically find commands as you type.\n\rEsc\t\t Exit search mode.\n\rOr use 'search' command followed by a term to search results.");             
-                    } else {
-                        command_output = String::from("Ctrl+r\t\t Enter quick search mode to dynamically find commands as you type.\n\rCtrl+c\t\t Copy currently selected command to clipboard.\n\rCtrl+u\t\t URL-encode and then copy currently selected command to clipboard.\n\rCrtl+h or hist\t Display selectable history of already selected commands.\n\rCtrl+v\t\t Paste from clipboard\n\rinfo\t\t Display info on the currently selected command.\n\renv\t\t Show currently set user variables\n\radd\t\t Add a command to the database e.g. 'add -c stty raw -echo;fg'\n\rupdate\t\t update database columns of currently selected command e.g. 'update comment bash reverse shell'.\n\rEsc\t\t Exit current mode.\n\rhelp\t\t Display help\n\rCtrl+q or exit\t Exit redOx.\n\r"); 
-                    }   
-                    terminal_output.clear_display();
-                    terminal_output.write_output( command_output);                    
+                    command_results = database.search_commands(&query).await;                    
                 } else if query.starts_with("exit") {
                     break;
                 } else {
                     terminal_output.clear_display();
-                    command_output = execute_command(&query).await;
+                    command_output = execute_command(&query).await.unwrap();
                     terminal_output.write_output( command_output);
                 }                
                 query.clear();

@@ -18,7 +18,7 @@ pub mod variables {
                 command_variables: HashMap::new(),
             }
         }
-        
+
         pub fn get_printable_variable_list(&mut self, variables: HashMap<String,String>) -> String{
             let mut output = String::new();
             for (key, value) in variables {

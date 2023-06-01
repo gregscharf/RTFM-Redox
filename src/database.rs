@@ -72,7 +72,7 @@ pub mod database {
                 .unwrap();
 
             let row_id = ex_query.last_insert_rowid();
-            let new_command = command_table::Command { cmd_id: row_id as i32, cmd: command.to_string(), cmnt: description.to_string(), author: String::from("niaiserie") };
+            let new_command = command_table::Command { cmd_id: row_id as i32, cmd: command.to_string(), cmnt: description.to_string(), author: String::from("") };
             self.commands.push(new_command.clone());           
             Ok(self.commands.clone())      
         }

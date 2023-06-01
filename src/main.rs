@@ -5,6 +5,7 @@ use database::command_table;
 use sqlx::Error;
 mod command_variables;
 mod database;
+use terminal_output::output;
 use termion::event::Key;
 use termion::input::TermRead;
 use clipboard::{ClipboardContext,ClipboardProvider};
@@ -72,10 +73,6 @@ async fn main() {
                     results_selection_mode = false;                      
                     
                     if query.len() > 0 { 
-                        // let command = format!("search {}", query);
-                        // results = search_commands(&db, &mut stdout, &command).await;
-                        // command_results = database.search_commands(&query).await;
-
                         let db_command = format!("search {}", query);
                         command_results = database.search_commands(&db_command).await;
 
@@ -85,8 +82,8 @@ async fn main() {
                             terminal_output.display_error(String::from("Not Found"));
                         }
                     } else {
-                        let command_output: String = execute_command(&"help".to_string()).await.unwrap();
-                        terminal_output.write_output( command_output);                        
+                        // let command_output: String = execute_command(&"help".to_string()).await.unwrap();
+                        terminal_output.write_output(execute_command(&"help".to_string()).await.unwrap());                        
                     }                        
                 } 
             }
@@ -233,8 +230,6 @@ async fn main() {
                                 terminal_output.clear_display();
                                 terminal_output.display_command_info( command_results[selected_result_index].clone(), &mut variables);
                                 terminal_output.display_copy_info( command);
-                                results_selection_mode = false;
-                                search_mode = false;  
                             }
                             Err(sqlx_error) => {
                                 match sqlx_error {
@@ -344,8 +339,15 @@ async fn main() {
                     break;
                 } else {
                     terminal_output.clear_display();
-                    command_output = execute_command(&query).await.unwrap();
-                    terminal_output.write_output( command_output);
+                    let result = execute_command(&query).await;
+                    match result {
+                        Ok(command_output) => {
+                            terminal_output.write_output(command_output);
+                        }
+                        Err(error) =>{
+                            terminal_output.display_error(error);
+                        }
+                    }
                 }                
                 query.clear();
             }

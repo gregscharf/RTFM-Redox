@@ -27,6 +27,11 @@ pub mod output {
 
             self.clear_display();   
 
+            //display the range of commands that fit on the screen
+            //it would go by the current index + the height...
+            //need to determine when to start scrolling up... 
+            //maybe when you're height/3 away from bottom index
+            //what about going down
             for (i, command) in results.iter().enumerate() {
                 if i == selected_index {
                     console_output += format!("{}{}({}) - {}{}{}\n\r",
@@ -52,6 +57,9 @@ pub mod output {
                 color::Fg(color::Reset),
                 color::Bg(color::Reset));      
                     
+            //display the range of commands that fit on the screen
+            //it would go by the current index + the height...
+            //use this: for command in selectable_list[15..=45].iter() {
             for command in selectable_list {
                 console_output += format!("({}) - {}\n\r",command.cmd_id,command.cmd).as_str();
             }   
@@ -65,10 +73,18 @@ pub mod output {
             if !command_variables.is_empty() {
                 variable_output = format!("\n\r\n\rVariables\n\r----------------------------\n\r{}", command_variables);
             }
-            let command_output = format!("Command id: {}\n\rauthor: {}\n\rcomment: {}\n\rcommand: {}\n\r{}\n\r ",
-                command.cmd_id,                  
+            let command_output = format!("{}Command id{}: {}\n\r{}author{}: {}\n\r{}comment{}: {}\n\r{}command{}: {}\n\r{}\n\r ",
+                color::Fg(color::Rgb(165,93,53)),
+                color::Fg(color::Reset),
+                command.cmd_id,    
+                color::Fg(color::Rgb(165,93,53)),
+                color::Fg(color::Reset),              
                 command.author,
-                command.cmnt,                  
+                color::Fg(color::Rgb(165,93,53)),
+                color::Fg(color::Reset),
+                command.cmnt,    
+                color::Fg(color::Rgb(165,93,53)),
+                color::Fg(color::Reset),         
                 command.cmd,
                 variable_output);
             self.write_output(command_output); 

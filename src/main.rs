@@ -211,7 +211,7 @@ async fn main() {
                             Ok(commands) => {
                                 command_results = commands;
                                 selected_result_index = command_results.len() -1;
-                                //The rest of this code is duplicated in "selection_mode" so create a function
+                                //FIX: the rest of this code is duplicated in "selection_mode"
                                 let command = variables.replace_variables_in_command(&command_results[selected_result_index].cmd);
                                 let mut clipboard = ClipboardContext::new().unwrap();
                                 clipboard.set_contents(command.clone()).unwrap();

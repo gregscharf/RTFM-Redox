@@ -1,6 +1,5 @@
 pub mod variables {
     use regex::Regex;
-    use regex::RegexBuilder;
     use std::collections::HashMap;
     
     #[derive(Clone)]
@@ -32,10 +31,9 @@ pub mod variables {
             self.command_variables.entry(key).or_insert(value);
         }
 
+        //TODO: Add custom pattern matching solution rather than inefficient regex and regex crate.
         pub fn replace_variables_in_command(&mut self, command: &str) -> String {
-            let re = RegexBuilder::new(r"(?i)\\?\[([^\[\]]+)\]")
-                .build()
-                .unwrap();
+            let re = Regex::new(r"(?i)\\?\[([^\[\]]+)\]").unwrap();
             let replaced = re.replace_all(command, |caps: &regex::Captures<'_>| {
                 if let Some(key) = caps.get(1) {
                     let key_str = key.as_str().to_lowercase();

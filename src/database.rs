@@ -35,7 +35,7 @@ pub mod database {
             let rows = sqlx::query(
                 "SELECT CmdID, Cmd, cmnt, author 
                 FROM TblCommand 
-                WHERE Cmd LIKE ? LIMIT 25",   
+                WHERE Cmd LIKE ?",   
                 ).bind(search_term).
                 fetch_all(self.db.as_ref().ok_or(SqlxError::RowNotFound)?)
                 .await?;

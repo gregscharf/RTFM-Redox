@@ -1,6 +1,6 @@
-The goal of this project is to create an easier to use and updated replacement for [RTFM](https://github.com/leostat/rtfm) (inspired by the book, Red Team Field Manual) as well as something that works similarly to [Rev Shells](https://revshells.com/) or the [HackTools](https://addons.mozilla.org/en-US/firefox/addon/hacktools/) browser plugin.  All without the need to leave your terminal to search through notes or open a browser window, or continually run a python script with a lot of switches you'll never remember.  It's basically like having a terminal history and history search for commands you never type in your terminal, but often type when you have a shell on a remote host or when interacting with a vulnerable web app.
+RTFM-RedOx is meant to be an easier to use and updated replacement for [RTFM](https://github.com/leostat/rtfm) (inspired by the book, Red Team Field Manual) as well as something that works similarly to [Rev Shells](https://revshells.com/) or the [HackTools](https://addons.mozilla.org/en-US/firefox/addon/hacktools/) browser plugin.  All without the need to leave your terminal to search through notes or open a browser window, or continually run a python script with a lot of switches you'll never remember.  It's basically like having a terminal history and history search for commands you never type in your terminal but often type when you have a shell on a remote host or when interacting with a vulnerable web app.  That being said, the database also contains many commands you'd also run on your attack machine for things like nmap, impacket scripts (adding as I go), crackmapexec, and 
 
-I'm currently using the sqlite database that [RTFM](https://github.com/leostat/rtfm) uses but that hasn't been updated in almost 6 years so I will be adding new commands and pushing the edited db file to the repository as I use this tool myself.    
+I'm currently using the sqlite database that [RTFM](https://github.com/leostat/rtfm) uses but that hasn't been updated in almost 6 years so I will be gradually adding new commands and pushing the edited db file to the repository.    
 
 
 ## Usage
@@ -52,18 +52,22 @@ Windows: Currently not supported because Termion does not work on windows.  I'll
 - [ ] Add config file to store user set variables and other as yet to be determined configurations.
     - This might be the place for related commands that are often used together. Add ability to save the commands in the current history.  Would need a way to quickly delete a command in the current history e.g. highlight the command and then Ctrl+d to remove it. Also need to be able to completely clear the current history.  User would also need to supply a name for the history before it is saved to the config file.  These would be stored as an array of row IDs from TblCommand. Use the 'config' crate to facilitate this.  
 - [ ] Ctrl+d while in selectable list deletes the item from the database, or if in history mode, deletes the item from the current history.
-- [ ] Left/right arrow keys to edit already typed or pasted in command.  Really only useful when adding to or updating the database.
+- [ ] Left/right arrow keys to edit already typed or pasted in command.  Really only useful when typing a long command to add to or update the database.
 - [ ] Make use of tags already implemented in the database to display selectable list of grouped items. For example, 'reverse shells linux' to display all commands in the database grouped under that tag.  tags already in the database are probably a little too general to be useful e.g. 'bash', 'windows'.  Also need a function to display all tags in the database as a selectable list.
 - [ ] Implement [RTFM](https://github.com/leostat/rtfm)'s solution for creating/updating the database
 - [ ] Continue to updating database with newer commands for things like Bloodhound,ffuf,feroxbuster,Rubeus,Crackmapexec,Chisel,SSHuttle, etc.
-- [ ] Command auto completion
+- [ ] Tab auto complete for best match while in search mode.
 - [ ] Switch from termion to crossterm for Windows support.
 - [ ] Add search capability for text based/markdown notes.    
-    - Root directory for user's notes will be supplied in a CLI variable.
+    - Root directory for user's notes will be supplied in a CLI variable/Config file.
+    - Do a basic grep for a search term
+    - Return dynamic list of selectable pathnames along with line the search term found in file
+    - Default application to open file will be set via CLI variable/config file
+    - When file is selected editor name plus path is copied to clipboard
 - [ ] Use pre-existing 'refs' table to link to markdown notes and display notes in terminal when selected.
 
 ## To Fix
-- [ ] Add buffer to scroll through result output that doesn't fit within terminal windows.
+- [x] Add buffer to scroll through result output that doesn't fit within terminal windows.
 - [x] Handle error when output exceeds terminal window so application doesn't crash on Arch.
     - Needs a much better solution
 - [ ] Sometimes backspace/delete key requires Ctrl+Backspace/Delete to delete typed character preceding cursor.

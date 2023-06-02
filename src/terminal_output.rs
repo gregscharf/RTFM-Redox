@@ -16,8 +16,23 @@ pub mod output {
             Output { stdout }
         }
 
+        pub fn highlight_search_result(&mut self, selected_index: usize, results: Vec<Command>) {
+            self.clear_display();  
 
-        pub fn highlight_search_result(&mut self, selected_index: usize, results: &mut Vec<Command>) {
+            let (width, height) = terminal_size().unwrap();
+            let available_height = height as usize - 10;
+            let mut start_index = 0;
+            let mut end_index = results.len()- 1;
+            if results.len() > available_height { //results won't fit on screen
+                if selected_index < available_height { //nothing more to scroll
+                    start_index = 0;
+                    end_index = available_height;
+                } else { //scroll results
+                    start_index = selected_index - available_height;
+                    end_index = selected_index;
+                }
+            }
+
             let mut console_output = format!("{}{}Comment: {}\n\r{}{}",
                 color::Bg(color::White),
                 color::Fg(color::Black),
@@ -25,26 +40,30 @@ pub mod output {
                 color::Fg(color::Reset),
                 color::Bg(color::Reset));
 
-            self.clear_display();   
-
-            //display the range of commands that fit on the screen
-            //it would go by the current index + the height...
-            //need to determine when to start scrolling up... 
-            //maybe when you're height/3 away from bottom index
-            //what about going down
             for (i, command) in results.iter().enumerate() {
-                if i == selected_index {
-                    console_output += format!("{}{}({}) - {}{}{}\n\r",
-                        color::Bg(color::Rgb(165,93,53)),
-                        color::Fg(color::Rgb(255, 255, 153)),
-                        command.cmd_id,
-                        command.cmd,
-                        color::Fg(color::Reset),
-                        color::Bg(color::Reset)).as_str();
-                } else {
-                    console_output += format!("({}) - {}\n\r",command.cmd_id,command.cmd).as_str();
+                if i >= start_index && i <= end_index {
+                    if i == selected_index {
+                        console_output += format!("{}{}({}) - {:.maxwidth$}{}{}\n\r",
+                            color::Bg(color::Rgb(165,93,53)),
+                            color::Fg(color::Rgb(255, 255, 153)),
+                            command.cmd_id,
+                            command.cmd,
+                            color::Fg(color::Reset),
+                            color::Bg(color::Reset),
+                            maxwidth = width as usize - 9).as_str();
+                    } else {
+                        console_output += format!("({}) - {:.maxwidth$}\n\r",command.cmd_id,command.cmd, maxwidth = width as usize - 9).as_str();
+                    }
                 }
-            }   
+            } 
+            console_output += format!("\n\rResults: {}{}{} / {}\n\r{}{}",
+                color::Bg(color::White),
+                color::Fg(color::Black),
+                selected_index + 1,
+                results.len(),
+                color::Fg(color::Reset),
+                color::Bg(color::Reset)).as_str(); 
+
             self.write_output(console_output);  
         }
 
@@ -57,12 +76,29 @@ pub mod output {
                 color::Fg(color::Reset),
                 color::Bg(color::Reset));      
                     
-            //display the range of commands that fit on the screen
-            //it would go by the current index + the height...
-            //use this: for command in selectable_list[15..=45].iter() {
-            for command in selectable_list {
-                console_output += format!("({}) - {}\n\r",command.cmd_id,command.cmd).as_str();
-            }   
+            let (_width, height) = terminal_size().unwrap();
+            let available_height = height as usize - 10;
+            let mut start_index = 0;
+            let mut end_index = selectable_list.len() - 1;
+            if selectable_list.len() > available_height {
+                start_index = selectable_list.len() - available_height - 1;
+                end_index = selectable_list.len() - 1;
+            }
+
+            for (i, command) in selectable_list.iter().enumerate() {
+                if i >= start_index && i <= end_index {
+                    console_output += format!("({}) - {}\n\r",command.cmd_id,command.cmd).as_str();
+                }
+            }
+
+            console_output += format!("\n\rResults: {}{}{} / {}\n\r{}{}",
+                color::Bg(color::White),
+                color::Fg(color::Black),
+                start_index + 1,
+                selectable_list.len(),
+                color::Fg(color::Reset),
+                color::Bg(color::Reset)).as_str();
+
             self.write_output(console_output); 
         }
 
@@ -73,20 +109,26 @@ pub mod output {
             if !command_variables.is_empty() {
                 variable_output = format!("\n\r\n\rVariables\n\r----------------------------\n\r{}", command_variables);
             }
-            let command_output = format!("{}Command id{}: {}\n\r{}author{}: {}\n\r{}comment{}: {}\n\r{}command{}: {}\n\r{}\n\r ",
+            let min_width = 10;
+            let command_output = format!("{}{:<width$}{}: {}\n\r{}{:<width$}{}: {}\n\r{}{:<width$}{}: {}\n\r{}{:<width$}{}: {}\n\r{}\n\r ",
                 color::Fg(color::Rgb(165,93,53)),
+                String::from("Command id"),
                 color::Fg(color::Reset),
                 command.cmd_id,    
                 color::Fg(color::Rgb(165,93,53)),
-                color::Fg(color::Reset),              
+                String::from("author"),   
+                color::Fg(color::Reset),           
                 command.author,
                 color::Fg(color::Rgb(165,93,53)),
+                String::from("comment"),  
                 color::Fg(color::Reset),
                 command.cmnt,    
                 color::Fg(color::Rgb(165,93,53)),
-                color::Fg(color::Reset),         
+                String::from("command"),     
+                color::Fg(color::Reset),      
                 command.cmd,
-                variable_output);
+                variable_output,
+                width = min_width);
             self.write_output(command_output); 
         }
 

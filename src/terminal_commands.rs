@@ -1,4 +1,3 @@
-
 pub async fn execute_command(command: &String) -> Result<String, String> {
     let output;
     match command.as_str() {

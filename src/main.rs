@@ -4,8 +4,9 @@ use terminal_commands::execute_command;
 use database::command_table;
 use sqlx::Error;
 mod command_variables;
+use crate::command_variables::variables::Variables;
 mod database;
-use terminal_output::output;
+use crate::database::database::Database;
 use termion::event::Key;
 use termion::input::TermRead;
 use clipboard::{ClipboardContext,ClipboardProvider};
@@ -13,7 +14,7 @@ use clipboard::{ClipboardContext,ClipboardProvider};
 #[tokio::main]
 async fn main() {
 
-    let mut database: database::database::Database = match database::database::Database::new().await {
+    let mut database: Database = match Database::new().await {
         Ok(database) => database,
         Err(error) => {
             eprintln!("Error: {}", error);
@@ -28,7 +29,7 @@ async fn main() {
     let mut command_results: Vec<command_table::Command> = Vec::new();
     let mut search_mode: bool = false;
     
-    let mut variables = command_variables::variables::Variables::new();
+    let mut variables: Variables = Variables::new();
 
     //Create a history for selected commands
     let mut command_history: Vec<command_table::Command> = Vec::new();
@@ -40,9 +41,7 @@ async fn main() {
 
     //Clear screen and print help when application starts
     terminal_output.clear_display();
-    let command_output: String = execute_command(&"help".to_string()).await.unwrap();
-    terminal_output.write_output( command_output);
-
+    terminal_output.write_output(execute_command(&"help".to_string()).await.unwrap());                        
     //TODO: Add a cleaner, more consistent method for parsing and executing commands.
     //Move most of this into terminal_commands.rs
     loop {
@@ -70,19 +69,18 @@ async fn main() {
                 terminal_output.update_prompt( &selected_command, &current_mode, &query);
                 if search_mode  {
                     command_results.clear(); 
+                    terminal_output.clear_display();
                     results_selection_mode = false;                      
                     
                     if query.len() > 0 { 
                         let db_command = format!("search {}", query);
                         command_results = database.search_commands(&db_command).await;
-
                         if !command_results.is_empty() {
                             terminal_output.display_selectable_list(&mut command_results);
                         } else {
                             terminal_output.display_error(String::from("Not Found"));
                         }
                     } else {
-                        // let command_output: String = execute_command(&"help".to_string()).await.unwrap();
                         terminal_output.write_output(execute_command(&"help".to_string()).await.unwrap());                        
                     }                        
                 } 
@@ -91,14 +89,14 @@ async fn main() {
                 if command_results.len() > 0 { 
                     if results_selection_mode == false {
                         results_selection_mode = true;
-                        selected_result_index = command_results.len() - 1;
+                        selected_result_index = command_results.len() - 1; //results displayed are highest index at bottom of screen
                     } else {             
                         selected_result_index = (selected_result_index + command_results.len() - 1) % command_results.len();
                     }
-                    terminal_output.highlight_search_result(selected_result_index, &mut command_results); 
+                    terminal_output.highlight_search_result(selected_result_index, command_results.clone()); 
                 }
             }
-            Ok(Key::Down) => {// Move down in results             
+            Ok(Key::Down) => {// Move down in results           
                 if command_results.len() > 0 {
                     if results_selection_mode == false {
                         results_selection_mode = true;
@@ -106,7 +104,7 @@ async fn main() {
                     } else { 
                         selected_result_index = (selected_result_index + 1) % command_results.len();
                     }
-                    terminal_output.highlight_search_result(selected_result_index, &mut command_results);
+                    terminal_output.highlight_search_result(selected_result_index, command_results.clone()); 
                 }
             }   
 
@@ -183,8 +181,7 @@ async fn main() {
                 results_selection_mode = false;
                 query.clear();
                 terminal_output.clear_display();
-                let command_output: String = execute_command(&"help".to_string()).await.unwrap();
-                terminal_output.write_output(command_output);
+                terminal_output.write_output(execute_command(&"help".to_string()).await.unwrap());                        
             }
             Ok(Key::Ctrl('h')) => {// Display selectable list of commands from history
                 if command_history.len() > 0 {

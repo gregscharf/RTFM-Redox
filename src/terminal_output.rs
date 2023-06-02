@@ -77,7 +77,7 @@ pub mod output {
                 color::Fg(color::Reset),
                 color::Bg(color::Reset));      
                     
-            let (_width, height) = terminal_size().unwrap();
+            let (width, height) = terminal_size().unwrap();
             let available_height = height as usize - 10;
             let mut start_index = 0;
             let mut end_index = selectable_list.len() - 1;
@@ -88,7 +88,10 @@ pub mod output {
 
             for (i, command) in selectable_list.iter().enumerate() {
                 if i >= start_index && i <= end_index {
-                    console_output += format!("({}) - {}\n\r",command.cmd_id,command.cmd).as_str();
+                    console_output += format!("({}) - {:.maxwidth$}\n\r",
+                        command.cmd_id,
+                        command.cmd,
+                        maxwidth = width as usize - 9).as_str();
                 }
             }
 

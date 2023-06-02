@@ -5,6 +5,7 @@ pub mod output {
     use crate::command_variables::variables::Variables;
     use crate::database::command_table::Command;
 
+
     pub struct Output {
         stdout: termion::raw::RawTerminal<io::Stdout>,
     }
@@ -109,7 +110,7 @@ pub mod output {
             if !command_variables.is_empty() {
                 variable_output = format!("\n\r\n\rVariables\n\r----------------------------\n\r{}", command_variables);
             }
-            let min_width = 10;
+            let min_width = 11;
             let command_output = format!("{}{:<width$}{}: {}\n\r{}{:<width$}{}: {}\n\r{}{:<width$}{}: {}\n\r{}{:<width$}{}: {}\n\r{}\n\r ",
                 color::Fg(color::Rgb(165,93,53)),
                 String::from("Command id"),

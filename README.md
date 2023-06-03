@@ -38,19 +38,20 @@ cd RTFM-Redox
 cargo run --release
 ```
 
-**Issues**
-Debian distributions: If the linker fails during build, install the following packages.
+## Known Issues
+
+**Debian distributions**: The linker will fail during the build process unless the following packages are installed.
 ```bash
 sudo apt install libxcb1-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev
 ```
 
-Kali: Sometimes the backspace/delete key requires Ctrl+Backspace/Delete to delete previous typed characters in terminal.  And in some cases Ctrl+h stops working so I've added a 'hist' command for when that occurs until I figure out some of the intermittent key stroke issues. 
+**Kali**: Sometimes the backspace/delete key requires Ctrl+Backspace/Delete to delete previous typed characters in terminal.  And in some cases Ctrl+h stops working so I've added a 'hist' command for when that occurs until I figure out some of the intermittent key stroke issues. 
 
-Arch: No known issues
+**Arch**: No known issues
 
-Mac M1: Screen flicker when using up/down arrows 
+**Mac M1**: Screen flicker when using up/down arrows 
 
-Windows: Currently not supported because Termion does not work on windows.  I'll switch to crossterm at some point.
+**Windows**: Not supported because the Termion crate does not work on windows.  I'll be switching to crossterm at some point.
 
 
 ## To Add

@@ -13,8 +13,8 @@ pub async fn execute_command(command: &String) -> Result<String, String> {
             let info: String = format!("{:<width$}Display info on the currently selected command.",String::from("info"),width = min_width);
             let env: String = format!("{:<width$}Show currently set user variables",String::from("env"),width = min_width);
             let add: String = format!("{:<width$}Add a command to the database e.g. 'add -c stty raw -echo;fg'",String::from("add"),width = min_width);
-            let update: String = format!("{:<width$}update database columns of currently selected command e.g. 'update comment bash reverse shell'.",String::from("update"),width = min_width);
-            let esc: String = format!("{:<width$}Exit current mode.",String::from("Esc"),width = min_width);
+            let update: String = format!("{:<width$}update database columns of currently selected command\n\r{:<width$}Use the name to the left of the content e.g. update author\n\r{:<width$}Ex: update references http://blog.gregscharf.com",String::from("update"),String::from(" "),String::from(" "), width = min_width);
+            let esc: String = format!("{:<width$}Exit current mode",String::from("Esc"),width = min_width);
             let help: String = format!("{:<width$}Display help",String::from("help"),width = min_width);
             let exit: String = format!("{:<width$}Exit RedOx",String::from("Ctrl+q or exit"),width = min_width);
             

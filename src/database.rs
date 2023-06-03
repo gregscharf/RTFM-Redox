@@ -138,6 +138,8 @@ pub mod database {
                     } else if table_column.contains("command"){
                         sql_query = "UPDATE TblCommand SET Cmd = ? where CmdID = ?";
                         command.cmd = content.to_string();
+                    } else if table_column.contains("references"){
+                        return self.add_reference_to_command(command, content).await;
                     } else {   
                         // display_error( "Update failed.".to_string());   
                         return Err(sqlx::Error::RowNotFound);
@@ -167,7 +169,33 @@ pub mod database {
                 return Err(sqlx::Error::RowNotFound);
             }
 
+        }
+        pub async fn add_reference_to_command(&mut self, command: &mut command_table::Command, reference: String) -> Result<String, sqlx::Error> {
+            let ex_query = sqlx::query(
+                "INSERT INTO TblRefContent (Ref) VALUES (?)",
+            )
+            .bind(reference.clone())
+            .execute(self.db.as_ref().ok_or(SqlxError::RowNotFound)?)
+            .await?;
+        
+            let ref_id = ex_query.last_insert_rowid();
+        
+            sqlx::query(
+                "INSERT INTO TblRefMap (RefID, CmdID) VALUES (?, ?)",
+            )
+            .bind(ref_id as i32)
+            .bind(command.cmd_id)
+            .execute(self.db.as_ref().ok_or(SqlxError::RowNotFound)?)
+            .await?;
+        
+
+            command.references.push(command_table::References { ref_id: ref_id as i32, ref_value: reference.clone()});
+            let command_output: String = format!("Added {} to references\n\r",
+                reference);
+            return Ok(command_output);  
+            // Ok(self.commands.clone())
         }        
+
     }
 }
 

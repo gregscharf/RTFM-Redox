@@ -116,7 +116,7 @@ pub mod output {
 
             let mut command_references = String::new();
             if !command.references.is_empty() {
-                command_references = format!("{}References:{}\n\r",
+                command_references = format!("{}references{} :\n\r",
                     color::Fg(color::Rgb(165,93,53)),
                     color::Fg(color::Reset));
                 for reference in &command.references {

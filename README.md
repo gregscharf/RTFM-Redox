@@ -75,5 +75,5 @@ sudo apt install libxcb1-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0
     - Needs a much better solution
 - [ ] Sometimes backspace/delete key requires Ctrl+Backspace/Delete to delete typed character preceding cursor.
 - [ ] Switch from termion to crossterm to add support for Windows consoles.      
-- [ ] Switch to rusqlite and dump sqlx to avoid openssl static build nightmare so I can create a release build.
+- [ ] Switch to rusqlite and dump sqlx to avoid openssl static build nightmare to allow for release builds.
 

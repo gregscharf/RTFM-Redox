@@ -111,10 +111,21 @@ pub mod output {
             let command_variables = variables.extract_variables_from_command(&command.cmd);
             let mut variable_output = String::new();
             if !command_variables.is_empty() {
-                variable_output = format!("\n\r\n\rVariables\n\r----------------------------\n\r{}", command_variables);
+                variable_output = format!("\n\rVariables \n\r----------------------------\n\r{}", command_variables);
             }
+
+            let mut command_references = String::new();
+            if !command.references.is_empty() {
+                command_references = format!("{}References:{}\n\r",
+                    color::Fg(color::Rgb(165,93,53)),
+                    color::Fg(color::Reset));
+                for reference in &command.references {
+                    command_references += &format!("{}\n\r", reference.ref_value);
+                }
+            }
+
             let min_width = 11;
-            let command_output = format!("{}{:<width$}{}: {}\n\r{}{:<width$}{}: {}\n\r{}{:<width$}{}: {}\n\r{}{:<width$}{}: {}\n\r{}\n\r ",
+            let command_output = format!("{}{:<width$}{}: {}\n\r{}{:<width$}{}: {}\n\r{}{:<width$}{}: {}\n\r{}{:<width$}{}: {}\n\r{}\n\r{}\n\r ",
                 color::Fg(color::Rgb(165,93,53)),
                 String::from("Command id"),
                 color::Fg(color::Reset),
@@ -131,6 +142,7 @@ pub mod output {
                 String::from("command"),     
                 color::Fg(color::Reset),      
                 command.cmd,
+                command_references,
                 variable_output,
                 width = min_width);
             self.write_output(command_output); 

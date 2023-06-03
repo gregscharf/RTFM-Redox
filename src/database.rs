@@ -1,5 +1,6 @@
 pub mod database {
     use sqlx::{migrate::MigrateDatabase,Sqlite, SqlitePool};
+    use sqlx::Row;
     use sqlx::{Error as SqlxError};
     use super::command_table;
 
@@ -30,23 +31,67 @@ pub mod database {
 
         }
 
-        pub async fn fetch_commands(&mut self, search_term: String) -> Result<Vec<command_table::Command>, sqlx::Error> {
+        // pub async fn fetch_commands(&mut self, search_term: String) -> Result<Vec<command_table::Command>, sqlx::Error> {
 
+        //     let rows = sqlx::query(
+        //         "SELECT CmdID, Cmd, cmnt, author 
+        //         FROM TblCommand 
+        //         WHERE Cmd LIKE ?",   
+        //         ).bind(search_term).
+        //         fetch_all(self.db.as_ref().ok_or(SqlxError::RowNotFound)?)
+        //         .await?;
+        //     let commands: Result<Vec<command_table::Command>, sqlx::Error> = rows.iter().map(|row| command_table::Command::from_row(row)).collect();
+        //     commands
+        // }   
+
+        pub async fn fetch_commands_with_references(&mut self, search_term: String) -> Result<Vec<command_table::Command>, sqlx::Error> {
             let rows = sqlx::query(
-                "SELECT CmdID, Cmd, cmnt, author 
-                FROM TblCommand 
-                WHERE Cmd LIKE ?",   
-                ).bind(search_term).
-                fetch_all(self.db.as_ref().ok_or(SqlxError::RowNotFound)?)
-                .await?;
-            let commands: Result<Vec<command_table::Command>, sqlx::Error> = rows.iter().map(|row| command_table::Command::from_row(row)).collect();
-            commands
-        }   
+                "SELECT TblCommand.CmdID, TblCommand.Cmd, TblCommand.cmnt, TblCommand.author, TblRefContent.ID, TblRefContent.Ref
+                FROM TblCommand
+                LEFT JOIN TblRefMap ON TblCommand.CmdID = TblRefMap.CmdID
+                LEFT JOIN TblRefContent ON TblRefMap.RefID = TblRefContent.ID
+                WHERE Cmd LIKE ?",
+            ).bind(search_term)
+            .fetch_all(self.db.as_ref().ok_or(SqlxError::RowNotFound)?)
+            .await?;
+        
+            let mut commands: Vec<command_table::Command> = Vec::new();
+        
+            for row in rows {
+                let cmd_id: i32 = row.try_get("CmdID")?;
+                let cmd: String = row.try_get("Cmd")?;
+                let cmnt: String = row.try_get("cmnt")?;
+                let author: String = row.try_get("author")?;
+                let ref_id: i32 = row.try_get("ID")?;
+                let ref_value: String = row.try_get("Ref")?;
+        
+                let command = match commands.iter_mut().find(|c| c.cmd_id == cmd_id) {
+                    Some(existing_command) => existing_command,
+                    None => {
+                        let new_command = command_table::Command {
+                            cmd_id,
+                            cmd: cmd.clone(),
+                            cmnt: cmnt.clone(),
+                            author: author.clone(),
+                            references: Vec::new(),
+                        };
+                        commands.push(new_command);
+                        commands.last_mut().unwrap()
+                    }
+                };
+        
+                command.references.push(command_table::References { ref_id, ref_value });
+
+            }
+        
+            Ok(commands)
+        }
 
         pub async fn search_commands(&mut self, query: &String) -> Vec<command_table::Command>{     
             let start_index: usize = "search ".len();
             let search_term: String = format!("{}{}{}","%",&query[start_index..],"%");            
-            self.commands =  self.fetch_commands(search_term).await.unwrap();
+            // self.commands =  self.fetch_commands(search_term).await.unwrap();
+            self.commands = self.fetch_commands_with_references(search_term).await.unwrap();
             
             self.commands.clone()
         }
@@ -72,7 +117,7 @@ pub mod database {
                 .unwrap();
 
             let row_id = ex_query.last_insert_rowid();
-            let new_command = command_table::Command { cmd_id: row_id as i32, cmd: command.to_string(), cmnt: description.to_string(), author: String::from("") };
+            let new_command = command_table::Command { cmd_id: row_id as i32, cmd: command.to_string(), cmnt: description.to_string(), author: String::from(""), references: Vec::new() };
             self.commands.push(new_command.clone());           
             Ok(self.commands.clone())      
         }
@@ -129,25 +174,41 @@ pub mod database {
 
 
 pub mod command_table {
-    use sqlx::Row;
-
+    // use sqlx::Row;
     #[derive(Clone)]
     pub struct Command {
         pub cmd_id: i32,
         pub cmd: String,
         pub cmnt: String,
         pub author: String,
+        pub references: Vec<References>,
+    }
+    
+    #[derive(Clone)]
+    pub struct References {
+        pub ref_id: i32,
+        pub ref_value: String,
     }
 
-    impl Command {
-        pub fn from_row(row: &sqlx::sqlite::SqliteRow) -> Result<Self, sqlx::Error> {
-            let cmd_id: i32 = row.get("CmdID");
-            let cmd: String = row.get("Cmd");
-            let cmnt: String = row.get("cmnt");
-            let author: String = row.get("author");
-            Ok(Command { cmd_id, cmd, cmnt, author })
-        }
+    // impl Command {
+    //     pub fn from_row(row: &sqlx::sqlite::SqliteRow) -> Result<Self, sqlx::Error> {
+    //         let cmd_id: i32 = row.get("CmdID");
+    //         let cmd: String = row.get("Cmd");
+    //         let cmnt: String = row.get("cmnt");
+    //         let author: String = row.get("author");
+    //         let references: Vec<References> = Vec::new();
+    //         Ok(Command { cmd_id, cmd, cmnt, author, references })
+    //     }
+    // }
     
-    }
+    // impl References {
+    //     pub fn from_row(row: &sqlx::sqlite::SqliteRow) -> Result<Self, sqlx::Error> {
+    //         let ref_id: i32 = row.get("ID");
+    //         let ref_value: String = row.get("Ref");
+    //         Ok(References { ref_id, ref_value })
+    //     }
+    // }
+
 }
+
 

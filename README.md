@@ -58,12 +58,6 @@ Windows: Currently not supported because Termion does not work on windows.  I'll
 - [ ] Continue to updating database with newer commands for things like Bloodhound,ffuf,feroxbuster,Rubeus,Crackmapexec,Chisel,SSHuttle, etc.
 - [ ] Tab auto complete for best match while in search mode.
 - [ ] Switch from termion to crossterm for Windows support.
-- [ ] Add search capability for text based/markdown notes.    
-    - Root directory for user's notes will be supplied in a CLI variable/Config file.
-    - Do a basic grep for a search term
-    - Return dynamic list of selectable pathnames along with line the search term found in file
-    - Default application to open file will be set via CLI variable/config file
-    - When file is selected editor name plus path is copied to clipboard
 - [ ] Use pre-existing 'refs' table to link to markdown notes and display notes in terminal when selected.
 
 ## To Fix

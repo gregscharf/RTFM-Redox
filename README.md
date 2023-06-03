@@ -17,9 +17,11 @@ Ctrl+u           URL-encode and then copy currently selected command to clipboar
 Crtl+h or hist   Display selectable history of already selected commands.
 Ctrl+v           Paste from clipboard
 info             Display info on the currently selected command.
-env              Show currently set user variables
+env              Show user variables that have already been set.
 add -c           Add a command to the database e.g. 'add -c nc [LHOST] [LPORT] -e /bin/bash'
-update           update database columns of currently selected command e.g. 'update comment bash reverse shell'.
+update           Update a database column in the selected command
+                 e.g. comment, command, author or references
+                 Example: update references http://blog.gregscharf.com
 Esc              Exit current mode.
 help             Display help
 Ctrl+q or exit   Exit redOx.

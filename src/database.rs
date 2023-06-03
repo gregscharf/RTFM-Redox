@@ -89,10 +89,9 @@ pub mod database {
 
         pub async fn search_commands(&mut self, query: &String) -> Vec<command_table::Command>{     
             let start_index: usize = "search ".len();
-            let search_term: String = format!("{}{}{}","%",&query[start_index..],"%");            
+            let search_term: String = format!("%{}%",&query[start_index..]);            
             // self.commands =  self.fetch_commands(search_term).await.unwrap();
-            self.commands = self.fetch_commands_with_references(search_term).await.unwrap();
-            
+            self.commands = self.fetch_commands_with_references(search_term).await.unwrap();           
             self.commands.clone()
         }
 

@@ -1,6 +1,6 @@
 mod terminal_output;
 mod terminal_commands;
-use terminal_commands::execute_command;
+use terminal_commands::{execute_search, execute_help};
 use database::command_table;
 use sqlx::Error;
 mod command_variables;
@@ -41,7 +41,7 @@ async fn main() {
 
     //Clear screen and print help when application starts
     terminal_output.clear_display();
-    terminal_output.write_output(execute_command(&"help".to_string()).await.unwrap());                        
+    execute_help("help".to_string()).await;                     
     //TODO: Add a cleaner, more consistent method for parsing and executing commands.
     //Move most of this into terminal_commands.rs
     loop {
@@ -73,15 +73,9 @@ async fn main() {
                     results_selection_mode = false;                      
                     
                     if query.len() > 0 { 
-                        let db_command = format!("search {}", query);
-                        command_results = database.search_commands(&db_command).await;
-                        if !command_results.is_empty() {
-                            terminal_output.display_selectable_list(&mut command_results);
-                        } else {
-                            terminal_output.display_error(String::from("Not Found"));
-                        }
+                        command_results = execute_search(format!("search {}", query), &mut database).await; 
                     } else {
-                        terminal_output.write_output(execute_command(&"help".to_string()).await.unwrap());                        
+                        execute_help("help search".to_string()).await;                      
                     }                        
                 } 
             }
@@ -89,7 +83,7 @@ async fn main() {
                 if command_results.len() > 0 { 
                     if results_selection_mode == false {
                         results_selection_mode = true;
-                        selected_result_index = command_results.len() - 1; //results displayed are highest index at bottom of screen
+                        selected_result_index = command_results.len() - 1; //results displayed begin with highest index at bottom of screen
                     } else {             
                         selected_result_index = (selected_result_index + command_results.len() - 1) % command_results.len();
                     }
@@ -161,14 +155,7 @@ async fn main() {
                 if search_mode {
                     if query.len() > 0 {
                         command_results.clear();
-                        let db_command = format!("search {}", query);
-                        command_results = database.search_commands(&db_command).await;
-
-                        if !command_results.is_empty() {
-                            terminal_output.display_selectable_list(&mut command_results);
-                        } else {
-                            terminal_output.display_error(String::from("Not Found"));
-                        }
+                        command_results = execute_search(format!("search {}", query), &mut database).await; 
                     }
                 }
             }            
@@ -181,7 +168,7 @@ async fn main() {
                 results_selection_mode = false;
                 query.clear();
                 terminal_output.clear_display();
-                terminal_output.write_output(execute_command(&"help".to_string()).await.unwrap());                        
+                execute_help("help".to_string()).await;                      
             }
             Ok(Key::Ctrl('h')) => {// Display selectable list of commands from history
                 if command_history.len() > 0 {
@@ -209,8 +196,7 @@ async fn main() {
                                 let command = variables.replace_variables_in_command(&command_results[selected_result_index].cmd);
                                 let mut clipboard = ClipboardContext::new().unwrap();
                                 clipboard.set_contents(command.clone()).unwrap();
-                                //Add new command to command_history if it isn't already in the command_history
-                                //Also set the index
+                                //Add new command to command_history if it isn't already in the command_history and set as selected
                                 let mut add_to_history: bool = true;
                                 let commands_slice: &[command_table::Command] = &command_history;
                                 for (i, command) in commands_slice.iter().enumerate(){
@@ -330,21 +316,14 @@ async fn main() {
                         terminal_output.display_error( String::from("There isn't a command currently selected."));
                     }                            
                 } else if query.starts_with("search") {
-                    // results = search_commands(&db, &mut stdout, &query).await;
-                    command_results = database.search_commands(&query).await;                    
+                    command_results = execute_search(query.clone(), &mut database).await;    
+                } else if query.starts_with("help") {
+                    execute_help(query.clone()).await;      
                 } else if query.starts_with("exit") {
                     break;
                 } else {
                     terminal_output.clear_display();
-                    let result = execute_command(&query).await;
-                    match result {
-                        Ok(command_output) => {
-                            terminal_output.write_output(command_output);
-                        }
-                        Err(error) =>{
-                            terminal_output.display_error(error);
-                        }
-                    }
+                    terminal_output.display_error("Command not found.".to_string());
                 }                
                 query.clear();
             }

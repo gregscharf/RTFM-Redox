@@ -41,7 +41,7 @@ async fn main() {
 
     //Clear screen and print help when application starts
     // terminal_output.clear_display();
-    terminal_output.display_header();                   
+    terminal_output.display_banner();                   
     // execute_help("help".to_string()).await;  
     //TODO: Add a cleaner, more consistent method for parsing and executing commands.
     //Move most of this into terminal_commands.rs
@@ -77,7 +77,7 @@ async fn main() {
                         command_results = execute_search(format!("search {}", query), &mut database).await; 
                     } else {
                         // execute_help("help search".to_string()).await;   
-                        terminal_output.display_header();                    
+                        terminal_output.display_banner();                    
                     }                        
                 } 
             }
@@ -177,7 +177,7 @@ async fn main() {
                 query.clear();
                 terminal_output.clear_display();
                 // execute_help("help".to_string()).await; 
-                terminal_output.display_header();                      
+                terminal_output.display_banner();                      
             }
             Ok(Key::Ctrl('h')) => {// Display selectable list of commands from history
                 if command_history.len() > 0 {

@@ -17,7 +17,7 @@ pub mod output {
             Output { stdout }
         }
 
-        pub fn display_header (&mut self) {
+        pub fn display_banner (&mut self) {
             let (width, height) = terminal_size().unwrap();
             self.clear_display();
             if width > 30 {

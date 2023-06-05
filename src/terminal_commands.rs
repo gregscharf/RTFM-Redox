@@ -19,14 +19,15 @@ pub async fn execute_search(search_term: String, database: &mut database::Databa
 
 pub async fn execute_help(command: String) {
     let terminal_output = &mut terminal_output::output::Output::new();
-    let min_width: usize = 17;
+    terminal_output.clear_display();
+    let min_width: usize = 12;
     let output: String;
 
     //All help commands and messages
     let control_r:String = format!("{:<width$}Enter quick search mode to dynamically find commands as you type.",String::from("Ctrl+r"),width = min_width);
     let control_c: String = format!("{:<width$}Copy currently selected command to clipboard.",String::from("Ctrl+c"),width = min_width);
     let control_u: String = format!("{:<width$}URL-encode and then copy currently selected command to clipboard.",String::from("Ctrl+u"),width = min_width);
-    let control_h: String = format!("{:<width$}Display selectable history of already selected commands.",String::from("Crtl+h or hist"),width = min_width);
+    let control_h: String = format!("{:<width$}Display selectable history of already selected commands.",String::from("Crtl+h"),width = min_width);
     let control_v: String = format!("{:<width$}Paste from clipboard",String::from("Crtl+v"),width = min_width);
     let info: String = format!("{:<width$}Display info on the currently selected command.",String::from("info"),width = min_width);
     let env: String = format!("{:<width$}Show user variables that have already been set.",String::from("env"),width = min_width);
@@ -34,7 +35,7 @@ pub async fn execute_help(command: String) {
     let update: String = format!("{:<width$}Update a database column in the selected command\n\r{:<width$}e.g. comment, command, author or references\n\r{:<width$}Example: update references http://blog.gregscharf.com",String::from("update"),String::from(" "),String::from(" "), width = min_width);
     let esc: String = format!("{:<width$}Exit current mode",String::from("Esc"),width = min_width);
     let help: String = format!("{:<width$}Display help",String::from("help"),width = min_width);
-    let exit: String = format!("{:<width$}Exit RedOx",String::from("Ctrl+q or exit"),width = min_width);
+    let exit: String = format!("{:<width$}Exit RedOx",String::from("Ctrl+q"),width = min_width);
     
     //Detailed help messages
     let add_detail: String = format!("To add a command to the database\n\r'add -c command [optional: -d comment]");

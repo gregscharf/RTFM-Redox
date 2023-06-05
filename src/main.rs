@@ -40,8 +40,9 @@ async fn main() {
     let mut results_selection_mode: bool = false;
 
     //Clear screen and print help when application starts
-    terminal_output.clear_display();
-    execute_help("help".to_string()).await;                     
+    // terminal_output.clear_display();
+    terminal_output.display_header();                   
+    // execute_help("help".to_string()).await;  
     //TODO: Add a cleaner, more consistent method for parsing and executing commands.
     //Move most of this into terminal_commands.rs
     loop {
@@ -75,7 +76,8 @@ async fn main() {
                     if query.len() > 0 { 
                         command_results = execute_search(format!("search {}", query), &mut database).await; 
                     } else {
-                        execute_help("help search".to_string()).await;                      
+                        // execute_help("help search".to_string()).await;   
+                        terminal_output.display_header();                    
                     }                        
                 } 
             }
@@ -147,6 +149,12 @@ async fn main() {
                     let command = format!("{}", query);
                     terminal_output.write_output( command); 
                 } 
+                // let mut buffer = String::new();
+                // io::stdin().read_to_string(&mut buffer);
+                // query.push_str(buffer.as_str());
+                // let command = format!("{}", query);
+                // terminal_output.write_output( command); 
+
             },            
             Ok(Key::Char(c)) if c != '\n'  => { 
                 results_selection_mode = false;               
@@ -168,7 +176,8 @@ async fn main() {
                 results_selection_mode = false;
                 query.clear();
                 terminal_output.clear_display();
-                execute_help("help".to_string()).await;                      
+                // execute_help("help".to_string()).await; 
+                terminal_output.display_header();                      
             }
             Ok(Key::Ctrl('h')) => {// Display selectable list of commands from history
                 if command_history.len() > 0 {

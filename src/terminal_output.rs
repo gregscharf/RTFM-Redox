@@ -17,6 +17,57 @@ pub mod output {
             Output { stdout }
         }
 
+        pub fn display_header (&mut self) {
+            let (width, height) = terminal_size().unwrap();
+            self.clear_display();
+            if width > 30 {
+                let artwork = format!(
+                        r#"                                                                    
+                         __   ___  __   __             
+                        |__) |__  |  \ /  \ \_/           
+                        |  \ |___ |__/ \__/ / \"#,
+                    );
+
+                    for (line_number,line) in artwork.lines().enumerate() {
+                        let trimmed_line = line.trim_start();
+                        let cursor_y = (height - 9) + line_number as u16;
+                        let mut cursor_x = 1;
+                        if line_number == 1 { //fix for top of first character line
+                            cursor_x = 2;
+                        }
+                        write!(
+                            self.stdout,
+                            "{}{}{}{}{}",
+                            cursor::Goto(cursor_x, cursor_y as u16),
+                            color::Fg(color::Rgb(165,93,53)),
+                            trimmed_line,
+                            color::Fg(color::Reset),
+                            cursor::Goto(cursor_x, 1) // Reset cursor position for next line
+                        ).expect("Failed to write to stdout");
+                
+                    }
+
+                    self.write_output(format!("{}{}{}{}\n\r{}\n\r{}{}",
+                    cursor::Goto(1, height - 4),
+                    color::Fg(color::Rgb(255, 255, 153)),
+                    color::Fg(color::Rgb(255, 255, 153)),
+                    "For help type 'help'",
+                    "Ctrl+r to start searcing for commands",
+                    color::Bg(color::Reset),
+                    color::Fg(color::Reset)));
+                }else {
+                    self.write_output(format!("{}{}{}{}{}\n\r{}\n\r{}",
+                    color::Bg(color::Rgb(165,93,53)),
+                    color::Fg(color::Rgb(255, 255, 153)),
+                    "RedOx",
+                    color::Bg(color::Reset),
+                    color::Fg(color::Reset), 
+                    "For help type 'help'",
+                    "Ctrl+r to start searcing for commands"));
+                }
+            }            
+     
+
         pub fn highlight_search_result(&mut self, selected_index: usize, results: Vec<Command>) {
             self.clear_display();  
 

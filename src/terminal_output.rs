@@ -21,14 +21,14 @@ pub mod output {
             let (width, height) = terminal_size().unwrap();
             self.clear_display();
             if width > 30 {
-                let artwork = format!(
+                let ascii_banner = format!(
                         r#"                                                                    
                          __   ___  __   __             
                         |__) |__  |  \ /  \ \_/           
                         |  \ |___ |__/ \__/ / \"#,
                     );
 
-                    for (line_number,line) in artwork.lines().enumerate() {
+                    for (line_number,line) in ascii_banner.lines().enumerate() {
                         let trimmed_line = line.trim_start();
                         let cursor_y = (height - 9) + line_number as u16;
                         let mut cursor_x = 1;

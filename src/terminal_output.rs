@@ -20,17 +20,25 @@ pub mod output {
         pub fn display_banner (&mut self) {
             let (width, height) = terminal_size().unwrap();
             self.clear_display();
-            if width > 30 {
+            if width > 20 {                    
                 let ascii_banner = format!(
-                        r#"                                                                    
-                         __   ___  __   __             
-                        |__) |__  |  \ /  \ \_/           
-                        |  \ |___ |__/ \__/ / \"#,
-                    );
+                        r#"   
+                        ██▀███  ▓█████ ▓█████▄  ▒█████  ▒██   ██▒
+                        ▓██ ▒ ██▒▓█   ▀ ▒██▀ ██▌▒██▒  ██▒▒▒ █ █ ▒░
+                        ▓██ ░▄█ ▒▒███   ░██   █▌▒██░  ██▒░░  █   ░
+                        ▒██▀▀█▄  ▒▓█  ▄ ░▓█▄   ▌▒██   ██░ ░ █ █ ▒ 
+                        ░██▓ ▒██▒░▒████▒░▒████▓ ░ ████▓▒░▒██▒ ▒██▒
+                        ░ ▒▓ ░▒▓░░░ ▒░ ░ ▒▒▓  ▒ ░ ▒░▒░▒░ ▒▒ ░ ░▓ ░
+                          ░▒ ░ ▒░ ░ ░  ░ ░ ▒  ▒   ░ ▒ ▒░ ░░   ░▒ ░
+                          ░░   ░    ░    ░ ░  ░ ░ ░ ░ ▒   ░    ░  
+                           ░        ░  ░   ░        ░ ░   ░    ░  
+                                         ░                        
+                    "#,
+                  );
 
                     for (line_number,line) in ascii_banner.lines().enumerate() {
                         let trimmed_line = line.trim_start();
-                        let cursor_y = (height - 9) + line_number as u16;
+                        let cursor_y = (height - 11) + line_number as u16;
                         let mut cursor_x = 1;
                         if line_number == 1 { //fix for top of first character line
                             cursor_x = 2;
@@ -48,7 +56,7 @@ pub mod output {
                     }
 
                     self.write_output(format!("{}{}{}{}\n\r{}\n\r{}{}",
-                    cursor::Goto(1, height - 4),
+                    cursor::Goto(1, height - 1),
                     color::Fg(color::Rgb(255, 255, 153)),
                     color::Fg(color::Rgb(255, 255, 153)),
                     "For help type 'help'",

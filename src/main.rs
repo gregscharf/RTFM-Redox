@@ -39,10 +39,8 @@ async fn main() {
     let mut selected_result_index: usize = 0;
     let mut results_selection_mode: bool = false;
 
-    //Clear screen and print help when application starts
-    // terminal_output.clear_display();
+    //Clear screen and print banner and truncated help when application starts
     terminal_output.display_banner();                   
-    // execute_help("help".to_string()).await;  
     //TODO: Add a cleaner, more consistent method for parsing and executing commands.
     //Move most of this into terminal_commands.rs
     loop {
@@ -76,7 +74,6 @@ async fn main() {
                     if query.len() > 0 { 
                         command_results = execute_search(format!("search {}", query), &mut database).await; 
                     } else {
-                        // execute_help("help search".to_string()).await;   
                         terminal_output.display_banner();                    
                     }                        
                 } 
@@ -175,8 +172,6 @@ async fn main() {
                 history_mode = false;
                 results_selection_mode = false;
                 query.clear();
-                terminal_output.clear_display();
-                // execute_help("help".to_string()).await; 
                 terminal_output.display_banner();                      
             }
             Ok(Key::Ctrl('h')) => {// Display selectable list of commands from history

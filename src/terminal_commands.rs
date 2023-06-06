@@ -6,7 +6,9 @@ use crate::terminal_output;
 pub async fn execute_search(search_term: String, database: &mut database::Database) -> Vec<command_table::Command>{
     let terminal_output = &mut terminal_output::output::Output::new();
     let mut command_results: Vec<command_table::Command>;
-    command_results = database.search_commands(&search_term).await;    
+
+    command_results = database.search_commands(&search_term).await; 
+       
     if !command_results.is_empty() {
         terminal_output.display_selectable_list(&mut command_results);
     } else {
@@ -20,7 +22,8 @@ pub async fn execute_search(search_term: String, database: &mut database::Databa
 pub async fn execute_help(command: String) {
     let terminal_output = &mut terminal_output::output::Output::new();
     terminal_output.clear_display();
-    let min_width: usize = 12;
+
+    let min_width: usize = 10;
     let output: String;
 
     //All help commands and messages

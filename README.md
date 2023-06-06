@@ -58,7 +58,7 @@ sudo apt install libxcb1-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0
 
 ## To Add
 - [x] After adding a new command to the db select it as the current command.
-- [ ] Search checks against both command and comment field
+- [ ] Search checks against both command and comment field?
 - [ ] Continue updating database with newer commands for things like Crackmapexec,ffuf,feroxbuster,Rubeus,Impacket, etc.
 - [ ] Update command reference links to better and more up to date content, preferably adding links to video content when possible.
 - [ ] Display ids next to references so that if necessary they can be deleted from the db through the redox CLI.  

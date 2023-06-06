@@ -66,6 +66,7 @@ async fn main() {
             Ok(Key::Backspace) => {
                 query.pop();             
                 terminal_output.update_prompt( &selected_command, &current_mode, &query);
+                
                 if search_mode  {
                     command_results.clear(); 
                     terminal_output.clear_display();
@@ -104,6 +105,7 @@ async fn main() {
             Ok(Key::Ctrl('u')) => {// Url encode and then copy text to the clipboard             
                 if command_history.len() > 0 {
                     terminal_output.clear_display();
+
                     let command = variables.replace_variables_in_command(&command_results[selected_result_index].cmd);
                     let mut encoded = String::new();                
                     for byte in command.bytes() {
@@ -119,8 +121,10 @@ async fn main() {
                             }
                         }
                     }
+
                     let mut clipboard = ClipboardContext::new().unwrap();
-                    clipboard.set_contents(encoded.clone()).unwrap();                                        
+                    clipboard.set_contents(encoded.clone()).unwrap();   
+
                     terminal_output.display_command_info( command_history[selected_command_in_history].clone(), &mut variables);
                     terminal_output.display_copy_info( encoded);
                 } else {
@@ -130,9 +134,11 @@ async fn main() {
             Ok(Key::Ctrl('c')) => {// Copy the current command to the clipboard            
                 if command_history.len() > 0 {
                     terminal_output.clear_display();
+
                     let command = variables.replace_variables_in_command(&command_results[selected_result_index].cmd);
                     let mut clipboard = ClipboardContext::new().unwrap();
-                    clipboard.set_contents(command.clone()).unwrap();                                        
+                    clipboard.set_contents(command.clone()).unwrap();   
+
                     terminal_output.display_command_info( command_history[selected_command_in_history].clone(), &mut variables);
                     terminal_output.display_copy_info( command);
                 } else {
@@ -146,17 +152,13 @@ async fn main() {
                     let command = format!("{}", query);
                     terminal_output.write_output( command); 
                 } 
-                // let mut buffer = String::new();
-                // io::stdin().read_to_string(&mut buffer);
-                // query.push_str(buffer.as_str());
-                // let command = format!("{}", query);
-                // terminal_output.write_output( command); 
-
             },            
             Ok(Key::Char(c)) if c != '\n'  => { 
-                results_selection_mode = false;               
+                results_selection_mode = false;
+
                 query.push(c);
                 terminal_output.update_prompt( &selected_command, &current_mode, &query);
+
                 if search_mode {
                     if query.len() > 0 {
                         command_results.clear();
@@ -178,8 +180,10 @@ async fn main() {
                 if command_history.len() > 0 {
                     terminal_output.clear_display();
                     command_results.clear();
+
                     terminal_output.display_selectable_list(&mut command_history);
                     command_results = command_history.clone();
+
                     results_selection_mode = false;
                     history_mode = true;
                 } else {
@@ -196,12 +200,15 @@ async fn main() {
                             Ok(commands) => {
                                 command_results = commands;
                                 selected_result_index = command_results.len() -1;
+
                                 //FIX: the rest of this code is duplicated in "selection_mode"
                                 let command = variables.replace_variables_in_command(&command_results[selected_result_index].cmd);
                                 let mut clipboard = ClipboardContext::new().unwrap();
                                 clipboard.set_contents(command.clone()).unwrap();
+                                
                                 //Add new command to command_history if it isn't already in the command_history and set as selected
                                 let mut add_to_history: bool = true;
+                                
                                 let commands_slice: &[command_table::Command] = &command_history;
                                 for (i, command) in commands_slice.iter().enumerate(){
                                     if command.cmd_id == command_results[selected_result_index].cmd_id.to_owned(){
@@ -210,10 +217,12 @@ async fn main() {
                                         break;
                                     }
                                 }
+                                
                                 if add_to_history {
                                     command_history.push(command_results[selected_result_index].clone());
                                     selected_command_in_history = command_history.len() - 1;
                                 }
+                                
                                 terminal_output.clear_display();
                                 terminal_output.display_command_info( command_results[selected_result_index].clone(), &mut variables);
                                 terminal_output.display_copy_info( command);
@@ -231,13 +240,15 @@ async fn main() {
                         }    
 
                    } else {
-                        command_output = String::from("To add a command to the database you must include -c followed by the command\n\r-d with a description of the command is optional"); 
                         terminal_output.clear_display();
+
+                        command_output = String::from("To add a command to the database you must include -c followed by the command\n\r-d with a description of the command is optional"); 
                         terminal_output.write_output( command_output); 
                    }
  
                 } else if query.starts_with("update") { //update command
                     terminal_output.clear_display();
+
                     let result = database.update_command(&query, &mut command_history[selected_command_in_history]).await;
                     match result {
                         Ok(command_output) => {
@@ -259,6 +270,7 @@ async fn main() {
                     let command = variables.replace_variables_in_command(&command_results[selected_result_index].cmd);
                     let mut clipboard = ClipboardContext::new().unwrap();
                     clipboard.set_contents(command.clone()).unwrap();
+                    
                     //Add new command to command_history if it isn't already in the command_history
                     //Also set the index
                     let mut add_to_history: bool = true;
@@ -270,21 +282,26 @@ async fn main() {
                             break;
                         }
                     }
+
                     if add_to_history {
                         command_history.push(command_results[selected_result_index].clone());
                         selected_command_in_history = command_history.len() - 1;
                     }
+
                     terminal_output.clear_display();
                     terminal_output.display_command_info( command_results[selected_result_index].clone(), &mut variables);
                     terminal_output.display_copy_info( command);
+
                     results_selection_mode = false;
                     search_mode = false;                    
                 } else if query.starts_with("hist") { //history command
                     terminal_output.clear_display();
                     if command_history.len() > 0 {
                         command_results.clear();
+
                         terminal_output.display_selectable_list(&mut command_history);
                         command_results = command_history.clone();
+
                         results_selection_mode = false;
                     } else {
                         terminal_output.display_error( String::from("History is currently empty."));
@@ -305,9 +322,11 @@ async fn main() {
                         if command_history.len() > 0 {                                     
                             terminal_output.display_command_info( command_history[selected_command_in_history].clone(), &mut variables);
                         }  
+
                         let command = variables.replace_variables_in_command(&command_history[selected_command_in_history].cmd);
                         let mut clipboard = ClipboardContext::new().unwrap();
                         clipboard.set_contents(command.clone()).unwrap();
+
                         terminal_output.display_copy_info( command);
                     } else {
                         terminal_output.display_error( "You must supply a variable".to_string());

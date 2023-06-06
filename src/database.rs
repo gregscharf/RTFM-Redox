@@ -89,8 +89,8 @@ pub mod database {
 
         pub async fn search_commands(&mut self, query: &String) -> Vec<command_table::Command>{     
             let start_index: usize = "search ".len();
-            let search_term: String = format!("%{}%",&query[start_index..]);            
-            // self.commands =  self.fetch_commands(search_term).await.unwrap();
+            let search_term: String = format!("%{}%",&query[start_index..]); 
+
             self.commands = self.fetch_commands_with_references(search_term).await.unwrap();           
             self.commands.clone()
         }
@@ -100,11 +100,13 @@ pub mod database {
             //TODO: check if there is a -d after and if so set that as the ending index for our command
             let mut end_index = query.len();
             let mut description = "None";
+
             if query.contains(" -d ") {
                 let start_desc_index: usize = query.find("-d").unwrap() + 3;
                 description = &query[start_desc_index..end_index];
                 end_index = query.find("-d").unwrap() - 1;
             }
+
             let command = &query[start_index..end_index];
 
             let ex_query = sqlx::query(
@@ -117,16 +119,19 @@ pub mod database {
 
             let row_id = ex_query.last_insert_rowid();
             let new_command = command_table::Command { cmd_id: row_id as i32, cmd: command.to_string(), cmnt: description.to_string(), author: String::from(""), references: Vec::new() };
+            
             self.commands.push(new_command.clone());           
             Ok(self.commands.clone())      
         }
 
         pub async fn update_command(&mut self, query: &String, command: &mut command_table::Command) -> Result<String, sqlx::Error> {
             let command_values: Vec<&str> = query.split_whitespace().collect();
+
             if let Some(table_column) = command_values.get(1) {
                 if command_values.len() > 2 {
                     let sql_query: & str;
                     let content = command_values[2..].join(" ");
+
                     if table_column.contains("comment") {
                         sql_query = "UPDATE TblCommand SET cmnt = ? where CmdID = ?";     
                         command.cmnt = content.to_string();  
@@ -185,10 +190,10 @@ pub mod database {
             .bind(ref_id as i32)
             .bind(command.cmd_id)
             .execute(self.db.as_ref().ok_or(SqlxError::RowNotFound)?)
-            .await?;
-        
+            .await?;        
 
             command.references.push(command_table::References { ref_id: ref_id as i32, ref_value: reference.clone()});
+
             let command_output: String = format!("Added {} to references\n\r",
                 reference);
             return Ok(command_output);  
@@ -197,8 +202,6 @@ pub mod database {
 
     }
 }
-
-
 
 pub mod command_table {
     // use sqlx::Row;

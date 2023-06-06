@@ -5,7 +5,6 @@ pub mod output {
     use crate::command_variables::variables::Variables;
     use crate::database::command_table::Command;
 
-
     pub struct Output {
         stdout: termion::raw::RawTerminal<io::Stdout>,
     }
@@ -18,62 +17,53 @@ pub mod output {
         }
 
         pub fn display_banner (&mut self) {
-            let (width, height) = terminal_size().unwrap();
             self.clear_display();
-            if width > 20 {                    
-                let ascii_banner = format!(
-                        r#"   
-                        ██▀███  ▓█████ ▓█████▄  ▒█████  ▒██   ██▒
-                        ▓██ ▒ ██▒▓█   ▀ ▒██▀ ██▌▒██▒  ██▒▒▒ █ █ ▒░
-                        ▓██ ░▄█ ▒▒███   ░██   █▌▒██░  ██▒░░  █   ░
-                        ▒██▀▀█▄  ▒▓█  ▄ ░▓█▄   ▌▒██   ██░ ░ █ █ ▒ 
-                        ░██▓ ▒██▒░▒████▒░▒████▓ ░ ████▓▒░▒██▒ ▒██▒
-                        ░ ▒▓ ░▒▓░░░ ▒░ ░ ▒▒▓  ▒ ░ ▒░▒░▒░ ▒▒ ░ ░▓ ░
-                          ░▒ ░ ▒░ ░ ░  ░ ░ ▒  ▒   ░ ▒ ▒░ ░░   ░▒ ░
-                          ░░   ░    ░    ░ ░  ░ ░ ░ ░ ▒   ░    ░  
-                           ░        ░  ░   ░        ░ ░   ░    ░  
-                                         ░                        
-                    "#,
-                  );
+                  
+            let (_width, height) = terminal_size().unwrap();                  
+            let ascii_banner = format!(
+                    r#"   
+                    ██▀███  ▓█████ ▓█████▄  ▒█████  ▒██   ██▒
+                    ▓██ ▒ ██▒▓█   ▀ ▒██▀ ██▌▒██▒  ██▒▒▒ █ █ ▒░
+                    ▓██ ░▄█ ▒▒███   ░██   █▌▒██░  ██▒░░  █   ░
+                    ▒██▀▀█▄  ▒▓█  ▄ ░▓█▄   ▌▒██   ██░ ░ █ █ ▒ 
+                    ░██▓ ▒██▒░▒████▒░▒████▓ ░ ████▓▒░▒██▒ ▒██▒
+                    ░ ▒▓ ░▒▓░░░ ▒░ ░ ▒▒▓  ▒ ░ ▒░▒░▒░ ▒▒ ░ ░▓ ░
+                        ░▒ ░ ▒░ ░ ░  ░ ░ ▒  ▒   ░ ▒ ▒░ ░░   ░▒ ░
+                        ░░   ░    ░    ░ ░  ░ ░ ░ ░ ▒   ░    ░  
+                        ░        ░  ░   ░        ░ ░   ░    ░  
+                                        ░                        
+                "#,
+                );
 
-                    for (line_number,line) in ascii_banner.lines().enumerate() {
-                        let trimmed_line = line.trim_start();
-                        let cursor_y = (height - 11) + line_number as u16;
-                        let mut cursor_x = 1;
-                        if line_number == 1 { //fix for top of first character line
-                            cursor_x = 2;
-                        }
-                        write!(
-                            self.stdout,
-                            "{}{}{}{}{}",
-                            cursor::Goto(cursor_x, cursor_y as u16),
-                            color::Fg(color::Rgb(165,93,53)),
-                            trimmed_line,
-                            color::Fg(color::Reset),
-                            cursor::Goto(cursor_x, 1) // Reset cursor position for next line
-                        ).expect("Failed to write to stdout");
-                
+                for (line_number,line) in ascii_banner.lines().enumerate() {
+                    let trimmed_line = line.trim_start();
+                    let cursor_y = (height - 13) + line_number as u16;
+                    let mut cursor_x = 1;
+
+                    if line_number == 1 { //fix for top of first character line
+                        cursor_x = 2;
                     }
 
-                    self.write_output(format!("{}{}{}{}\n\r{}\n\r{}{}",
-                    cursor::Goto(1, height - 1),
-                    color::Fg(color::Rgb(255, 255, 153)),
-                    color::Fg(color::Rgb(255, 255, 153)),
-                    "For help type 'help'",
-                    "Ctrl+r to start searcing for commands",
-                    color::Bg(color::Reset),
-                    color::Fg(color::Reset)));
-                }else {
-                    self.write_output(format!("{}{}{}{}{}\n\r{}\n\r{}",
-                    color::Bg(color::Rgb(165,93,53)),
-                    color::Fg(color::Rgb(255, 255, 153)),
-                    "RedOx",
-                    color::Bg(color::Reset),
-                    color::Fg(color::Reset), 
-                    "For help type 'help'",
-                    "Ctrl+r to start searcing for commands"));
+                    write!(
+                        self.stdout,
+                        "{}{}{}{}{}",
+                        cursor::Goto(cursor_x, cursor_y as u16),
+                        color::Fg(color::Red),
+                        trimmed_line,
+                        color::Fg(color::Reset),
+                        cursor::Goto(cursor_x, 1) // Reset cursor position for next line
+                    ).expect("Failed to write to stdout");
                 }
-            }            
+                self.write_output(format!("{}{}{}{}\n\r{}\n\r{}{}",
+                cursor::Goto(1, height - 1),
+                color::Fg(color::Rgb(255, 255, 153)),
+                color::Fg(color::Rgb(255, 255, 153)),
+                "For help type 'help'",
+                "Ctrl+r to start searcing for commands",
+                color::Bg(color::Reset),
+                color::Fg(color::Reset)));
+            
+        }            
      
 
         pub fn highlight_search_result(&mut self, selected_index: usize, results: Vec<Command>) {
@@ -83,6 +73,7 @@ pub mod output {
             let available_height = height as usize - 10;
             let mut start_index = 0;
             let mut end_index = results.len()- 1;
+
             if results.len() > available_height { //results won't fit on screen
                 if selected_index < available_height { //nothing more to scroll
                     start_index = 0;
@@ -115,7 +106,8 @@ pub mod output {
                         console_output += format!("({}) - {:.maxwidth$}\n\r",command.cmd_id,command.cmd, maxwidth = width as usize - 9).as_str();
                     }
                 }
-            } 
+            }
+
             console_output += format!("\n\rResults: {}{}{} / {}\n\r{}{}",
                 color::Bg(color::White),
                 color::Fg(color::Black),
@@ -129,17 +121,20 @@ pub mod output {
 
         pub fn display_selectable_list(&mut self, selectable_list: &mut Vec<Command>){
             self.clear_display();
+
             let mut console_output = format!("{}{}{}{}{}",
                 color::Bg(color::White),
                 color::Fg(color::Black),
                 "Select a result with the up/down arrow keys. Press enter to copy to the clipboard\n\r",
                 color::Fg(color::Reset),
-                color::Bg(color::Reset));      
-                    
+                color::Bg(color::Reset)); 
+
             let (width, height) = terminal_size().unwrap();
             let available_height = height as usize - 10;
+
             let mut start_index = 0;
             let mut end_index = selectable_list.len() - 1;
+
             if selectable_list.len() > available_height {
                 start_index = selectable_list.len() - available_height - 1;
                 end_index = selectable_list.len() - 1;
@@ -166,9 +161,9 @@ pub mod output {
         }
 
         pub fn display_command_info(&mut self, command: Command, variables: &mut Variables){
-            // clear_display(stdout);
             let command_variables = variables.extract_variables_from_command(&command.cmd);
             let mut variable_output = String::new();
+
             if !command_variables.is_empty() {
                 variable_output = format!("\n\rVariables \n\r----------------------------\n\r{}", command_variables);
             }
@@ -184,6 +179,7 @@ pub mod output {
             }
 
             let min_width = 11;
+
             let command_output = format!("{}{:<width$}{}: {}\n\r{}{:<width$}{}: {}\n\r{}{:<width$}{}: {}\n\r{}{:<width$}{}: {}\n\r{}\n\r{}\n\r ",
                 color::Fg(color::Rgb(165,93,53)),
                 String::from("Command id"),
@@ -239,11 +235,11 @@ pub mod output {
 
         pub fn write_output(&mut self, console_output: String) {
             let (_width, height) = terminal_size().unwrap();
+
             if console_output.lines().count() > height as usize {
                 self.display_error("Results exceed window height. Keep typing to reduce the number of results.".to_string());
             } else {
                 write!(self.stdout,"{}{}{}\n\r", 
-                    // termion::clear::All,
                     cursor::Goto(1, height - console_output.lines().count() as u16 + 1),
                     console_output,
                     termion::clear::CurrentLine)                        

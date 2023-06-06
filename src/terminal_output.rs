@@ -20,7 +20,7 @@ pub mod output {
             self.clear_display();
                   
             let (_width, height) = terminal_size().unwrap();                  
-            let ascii_banner = format!(
+            let ascii_banner_bloody = format!(
                     r#"   
                     ██▀███  ▓█████ ▓█████▄  ▒█████  ▒██   ██▒
                     ▓██ ▒ ██▒▓█   ▀ ▒██▀ ██▌▒██▒  ██▒▒▒ █ █ ▒░
@@ -35,7 +35,18 @@ pub mod output {
                 "#,
                 );
 
-                for (line_number,line) in ascii_banner.lines().enumerate() {
+                let _ascii_banner_speedy = format!(
+                    r#"
+                    ________       ________________         
+                    ___  __ \_____ ______  /__  __ \____  __
+                    __  /_/ /_  _ \_  __  / _  / / /__  |/_/
+                    _  _, _/ /  __// /_/ /  / /_/ / __>  <  
+                    /_/ |_|  \___/ \__,_/   \____/  /_/|_|  
+                    "#,
+                );
+
+
+                for (line_number,line) in ascii_banner_bloody.lines().enumerate() {
                     let trimmed_line = line.trim_start();
                     let cursor_y = (height - 13) + line_number as u16;
                     let mut cursor_x = 1;
@@ -65,12 +76,12 @@ pub mod output {
             
         }            
      
-
         pub fn highlight_search_result(&mut self, selected_index: usize, results: Vec<Command>) {
             self.clear_display();  
 
             let (width, height) = terminal_size().unwrap();
-            let available_height = height as usize - 10;
+            let buffer_from_top = 8;
+            let available_height = height as usize - buffer_from_top;
             let mut start_index = 0;
             let mut end_index = results.len()- 1;
 
@@ -130,7 +141,8 @@ pub mod output {
                 color::Bg(color::Reset)); 
 
             let (width, height) = terminal_size().unwrap();
-            let available_height = height as usize - 10;
+            let buffer_from_top = 8;
+            let available_height = height as usize - buffer_from_top;
 
             let mut start_index = 0;
             let mut end_index = selectable_list.len() - 1;

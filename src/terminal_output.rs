@@ -9,6 +9,7 @@ pub mod output {
         stdout: termion::raw::RawTerminal<io::Stdout>,
         //Leave some space at top of terminal for dynamic search and long comments
         buffer_from_top: usize,  
+        
         ascii_banner_bloody: String,
         ascii_banner_speedy: String,
     }

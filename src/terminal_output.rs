@@ -42,16 +42,16 @@ pub mod output {
                 /_/ |_|  \___/ \__,_/   \____/  /_/|_|  
                 "#,
             );
-            Output { stdout,buffer_from_top,ascii_banner_bloody, ascii_banner_speedy }
+            Output { stdout,buffer_from_top, ascii_banner_bloody, ascii_banner_speedy }
         }
 
-        // pub fn get_speedy_banner (&mut self) -> String {
-        //     self.format_banner(self.ascii_banner_speedy.clone())
-        // }
+        pub fn get_banner_speedy (&mut self) -> String {
+            self.format_banner(self.ascii_banner_speedy.clone())
+        }
 
-        // pub fn get_bloody_banner (&mut self) -> String {
-        //     self.format_banner(self.ascii_banner_speedy.clone())
-        // }
+        pub fn get_banner_bloody (&mut self) -> String {
+            self.format_banner(self.ascii_banner_bloody.clone())
+        }
 
         pub fn format_banner(&mut self, banner: String) -> String{
             let (_width, height) = terminal_size().unwrap();                  
@@ -77,15 +77,15 @@ pub mod output {
             banner_formatted
         }
 
-        pub fn display_banner (&mut self) {
+        pub fn display_banner (&mut self, formatted_banner: String) {
             self.clear_display();
                   
             let (_width, height) = terminal_size().unwrap();                  
 
-            let formmatted_banner = self.format_banner(self.ascii_banner_speedy.clone());
+            // let formmatted_banner = self.get_banner_speedy();
 
             self.write_output(format!("{}{}{}{}{}\n\r{}\n\r{}{}",
-            formmatted_banner,
+            formatted_banner,
             cursor::Goto(1, height - 1),
             color::Fg(color::Rgb(255, 255, 153)),
             color::Fg(color::Rgb(255, 255, 153)),

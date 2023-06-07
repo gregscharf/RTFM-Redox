@@ -30,7 +30,7 @@ pub async fn execute_help(command: String) {
     let control_r:String = format!("{:<width$}Enter quick search mode to dynamically find commands as you type.",String::from("Ctrl+r"),width = min_width);
     let control_c: String = format!("{:<width$}Copy currently selected command to clipboard.",String::from("Ctrl+c"),width = min_width);
     let control_u: String = format!("{:<width$}URL-encode and then copy currently selected command to clipboard.",String::from("Ctrl+u"),width = min_width);
-    let control_h: String = format!("{:<width$}Display selectable history of already selected commands.",String::from("Crtl+h"),width = min_width);
+    let control_h: String = format!("{:<width$}\n\r{:<width$}Display selectable history of already selected commands.",String::from("Crtl+h"),String::from("or 'hist'"),width = min_width);
     let control_v: String = format!("{:<width$}Paste from clipboard",String::from("Crtl+v"),width = min_width);
     let info: String = format!("{:<width$}Display info on the currently selected command.",String::from("info"),width = min_width);
     let env: String = format!("{:<width$}Show user variables that have already been set.",String::from("env"),width = min_width);

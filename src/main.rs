@@ -1,6 +1,6 @@
 mod terminal_output;
-mod terminal_commands;
-use terminal_commands::{execute_search, execute_help};
+mod terminal_actions;
+use terminal_actions::{execute_search, execute_help};
 use database::command_table;
 use sqlx::Error;
 mod command_variables;
@@ -42,7 +42,7 @@ async fn main() {
     //Clear screen and print banner and truncated help when application starts
     terminal_output.display_banner();                   
     //TODO: Add a cleaner, more consistent method for parsing and executing commands.
-    //Move most of this into terminal_commands.rs
+    //Move most of this into terminal_actions.rs
     loop {
         let mut selected_command: String = String::from("");
         let mut current_mode: String = String::from("");

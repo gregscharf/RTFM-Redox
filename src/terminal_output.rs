@@ -7,81 +7,100 @@ pub mod output {
 
     pub struct Output {
         stdout: termion::raw::RawTerminal<io::Stdout>,
+        //Leave some space at top of terminal for dynamic search and long comments
+        buffer_from_top: usize,  
+        ascii_banner_bloody: String,
+        ascii_banner_speedy: String,
     }
 
     impl Output {
 
-        pub fn new() -> Self {
+        pub fn new() -> Self {           
             let stdout = stdout().into_raw_mode().unwrap();
-            Output { stdout }
+            let buffer_from_top = 8;
+            let ascii_banner_bloody = format!(
+                r#"   
+                ██▀███  ▓█████ ▓█████▄  ▒█████  ▒██   ██▒
+                ▓██ ▒ ██▒▓█   ▀ ▒██▀ ██▌▒██▒  ██▒▒▒ █ █ ▒░
+                ▓██ ░▄█ ▒▒███   ░██   █▌▒██░  ██▒░░  █   ░
+                ▒██▀▀█▄  ▒▓█  ▄ ░▓█▄   ▌▒██   ██░ ░ █ █ ▒ 
+                ░██▓ ▒██▒░▒████▒░▒████▓ ░ ████▓▒░▒██▒ ▒██▒
+                ░ ▒▓ ░▒▓░░░ ▒░ ░ ▒▒▓  ▒ ░ ▒░▒░▒░ ▒▒ ░ ░▓ ░
+                    ░▒ ░ ▒░ ░ ░  ░ ░ ▒  ▒   ░ ▒ ▒░ ░░   ░▒ ░
+                    ░░   ░    ░    ░ ░  ░ ░ ░ ░ ▒   ░    ░  
+                    ░        ░  ░   ░        ░ ░   ░    ░  
+                                    ░                        
+            "#,
+            );
+
+            let ascii_banner_speedy = format!(
+                r#"
+                ________       ________________         
+                ___  __ \_____ ______  /__  __ \____  __
+                __  /_/ /_  _ \_  __  / _  / / /__  |/_/
+                _  _, _/ /  __// /_/ /  / /_/ / __>  <  
+                /_/ |_|  \___/ \__,_/   \____/  /_/|_|  
+                "#,
+            );
+            Output { stdout,buffer_from_top,ascii_banner_bloody, ascii_banner_speedy }
+        }
+
+        // pub fn get_speedy_banner (&mut self) -> String {
+        //     self.format_banner(self.ascii_banner_speedy.clone())
+        // }
+
+        // pub fn get_bloody_banner (&mut self) -> String {
+        //     self.format_banner(self.ascii_banner_speedy.clone())
+        // }
+
+        pub fn format_banner(&mut self, banner: String) -> String{
+            let (_width, height) = terminal_size().unwrap();                  
+            let mut banner_formatted: String = String::from("");
+
+            for (line_number,line) in banner.lines().enumerate() {
+                let trimmed_line = line.trim_start();
+                let cursor_y = (height - banner.lines().count() as u16 - 1) + line_number as u16;
+                let mut cursor_x = 1;
+
+                if line_number == 1 { //fix for top of first character line
+                    cursor_x = 2;
+                }
+
+                banner_formatted += &format!( "{}{}{}{}{}",
+                    cursor::Goto(cursor_x, cursor_y as u16),
+                    color::Fg(color::Red),
+                    trimmed_line.to_string(),
+                    color::Fg(color::Reset),
+                    cursor::Goto(cursor_x, 1));
+            }
+
+            banner_formatted
         }
 
         pub fn display_banner (&mut self) {
             self.clear_display();
                   
             let (_width, height) = terminal_size().unwrap();                  
-            let ascii_banner_bloody = format!(
-                    r#"   
-                    ██▀███  ▓█████ ▓█████▄  ▒█████  ▒██   ██▒
-                    ▓██ ▒ ██▒▓█   ▀ ▒██▀ ██▌▒██▒  ██▒▒▒ █ █ ▒░
-                    ▓██ ░▄█ ▒▒███   ░██   █▌▒██░  ██▒░░  █   ░
-                    ▒██▀▀█▄  ▒▓█  ▄ ░▓█▄   ▌▒██   ██░ ░ █ █ ▒ 
-                    ░██▓ ▒██▒░▒████▒░▒████▓ ░ ████▓▒░▒██▒ ▒██▒
-                    ░ ▒▓ ░▒▓░░░ ▒░ ░ ▒▒▓  ▒ ░ ▒░▒░▒░ ▒▒ ░ ░▓ ░
-                        ░▒ ░ ▒░ ░ ░  ░ ░ ▒  ▒   ░ ▒ ▒░ ░░   ░▒ ░
-                        ░░   ░    ░    ░ ░  ░ ░ ░ ░ ▒   ░    ░  
-                        ░        ░  ░   ░        ░ ░   ░    ░  
-                                        ░                        
-                "#,
-                );
 
-                let _ascii_banner_speedy = format!(
-                    r#"
-                    ________       ________________         
-                    ___  __ \_____ ______  /__  __ \____  __
-                    __  /_/ /_  _ \_  __  / _  / / /__  |/_/
-                    _  _, _/ /  __// /_/ /  / /_/ / __>  <  
-                    /_/ |_|  \___/ \__,_/   \____/  /_/|_|  
-                    "#,
-                );
+            let formmatted_banner = self.format_banner(self.ascii_banner_speedy.clone());
 
-
-                for (line_number,line) in ascii_banner_bloody.lines().enumerate() {
-                    let trimmed_line = line.trim_start();
-                    let cursor_y = (height - 13) + line_number as u16;
-                    let mut cursor_x = 1;
-
-                    if line_number == 1 { //fix for top of first character line
-                        cursor_x = 2;
-                    }
-
-                    write!(
-                        self.stdout,
-                        "{}{}{}{}{}",
-                        cursor::Goto(cursor_x, cursor_y as u16),
-                        color::Fg(color::Red),
-                        trimmed_line,
-                        color::Fg(color::Reset),
-                        cursor::Goto(cursor_x, 1) // Reset cursor position for next line
-                    ).expect("Failed to write to stdout");
-                }
-                self.write_output(format!("{}{}{}{}\n\r{}\n\r{}{}",
-                cursor::Goto(1, height - 1),
-                color::Fg(color::Rgb(255, 255, 153)),
-                color::Fg(color::Rgb(255, 255, 153)),
-                "For help type 'help'",
-                "Ctrl+r to start searcing for commands",
-                color::Bg(color::Reset),
-                color::Fg(color::Reset)));
-            
+            self.write_output(format!("{}{}{}{}{}\n\r{}\n\r{}{}",
+            formmatted_banner,
+            cursor::Goto(1, height - 1),
+            color::Fg(color::Rgb(255, 255, 153)),
+            color::Fg(color::Rgb(255, 255, 153)),
+            "For help type 'help'",
+            "Ctrl+r to start searcing for commands",
+            color::Bg(color::Reset),
+            color::Fg(color::Reset)));            
         }            
      
         pub fn highlight_search_result(&mut self, selected_index: usize, results: Vec<Command>) {
             self.clear_display();  
 
             let (width, height) = terminal_size().unwrap();
-            let buffer_from_top = 8;
-            let available_height = height as usize - buffer_from_top;
+            
+            let available_height = height as usize - self.buffer_from_top;
             let mut start_index = 0;
             let mut end_index = results.len()- 1;
 
@@ -141,8 +160,7 @@ pub mod output {
                 color::Bg(color::Reset)); 
 
             let (width, height) = terminal_size().unwrap();
-            let buffer_from_top = 8;
-            let available_height = height as usize - buffer_from_top;
+            let available_height = height as usize - self.buffer_from_top;
 
             let mut start_index = 0;
             let mut end_index = selectable_list.len() - 1;
@@ -268,8 +286,7 @@ pub mod output {
                         color::Fg(color::Rgb(165,93,53)),           
                         color::Fg(color::Rgb(255,255,71)), 
                         selected_command,
-                        color::Fg(color::Rgb(165,93,53)),
-                        );
+                        color::Fg(color::Rgb(165,93,53)));
             } 
 
             let mut mode: String = String::from(":");

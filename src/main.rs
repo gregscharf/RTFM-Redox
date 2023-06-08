@@ -61,7 +61,6 @@ async fn main() {
         match key {          
             Ok(Key::Ctrl('r')) => { // Ctrl + R to enter search mode and query the database as you type
                 search_results.cycle_search_mode();
-                // search_mode = true;
                 query.clear();
             }
             Ok(Key::Backspace) => {
@@ -169,7 +168,6 @@ async fn main() {
 
                 if search_results.get_search_mode() != search::search::OFF {
                     if query.len() > 0 {
-                        // search_results.set_results(execute_search(search_results.clone().get_search_column(), format!("search {}", query), &mut database).await);
                         match execute_search(search_results.clone().get_search_column(), format!("search {}", query), &mut database).await {
                             Some(results) => {
                                 search_results.set_results(results);
@@ -255,8 +253,7 @@ async fn main() {
                             let result = database.update_command(&query, &mut command).await;
 
                             match result {
-                                Ok(update_message) => {
-                                    
+                                Ok(update_message) => {                                    
                                     //TODO: get the command to update automatically without another hacky history add
                                     search_results.add_command_to_history(command.clone());
 
@@ -315,7 +312,6 @@ async fn main() {
                         } else {
                             terminal_output.display_error( "You must supply a value".to_string());
                         }
-
                         //FIX: Code below duplicated in "info" command
                         let results = search_results.get_selected_history_command();
                         match results {
@@ -355,9 +351,7 @@ async fn main() {
                             terminal_output.display_error( String::from("There isn't a command currently selected."));
                         }
                     }   
-
                 } else if query.starts_with("search") { 
-                    // search_results.set_results(execute_search(search_results.clone().get_search_column(), format!("{}", query), &mut database).await);           
                     let column = "Cmd";
                     match execute_search(column.to_string(), format!("{}", query), &mut database).await {
                         Some(results) => {

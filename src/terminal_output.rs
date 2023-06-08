@@ -235,12 +235,12 @@ pub mod output {
 
         pub fn display_user_variables(&mut self, variables: &mut Variables){
             self.clear_display();
+            
             let user_variables = variables.get_printable_variable_list(variables.user_variables.clone());
-            if !user_variables.is_empty(){
-                let command_output = format!("\n\rUser Variables\n\r----------------------------\n\r{}\n\r",
-                    user_variables);
-                self.write_output(command_output); 
-            }
+            let command_output = format!("\n\rUser Variables\n\r----------------------------\n\r{}\n\r",
+                if !user_variables.is_empty() { user_variables } else { "None".to_string()});
+            
+            self.write_output(command_output); 
         }
 
         pub fn display_error(&mut self, error_message: String){
@@ -277,7 +277,7 @@ pub mod output {
             }
         }
 
-        pub fn update_prompt(&mut self, selected_command: &String, current_mode: &String, query: &String){
+        pub fn update_prompt(&mut self, selected_command: String, current_mode: String, query: &String){
             let (_width, height) = terminal_size().unwrap();
             let mut prompt: String = format!("{}redOx",
                 color::Fg(color::Rgb(165,93,53)));

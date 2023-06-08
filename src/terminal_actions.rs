@@ -12,7 +12,7 @@ pub async fn execute_search(search_term: String, database: &mut database::Databa
     if !command_results.is_empty() {
         terminal_output.display_selectable_list(&mut command_results);
     } else {
-        terminal_output.display_error(String::from("Not Found"));
+        terminal_output.display_error(format!("No results found for {}", search_term));
     }   
 
     command_results

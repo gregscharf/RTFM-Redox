@@ -137,13 +137,12 @@ pub mod database {
                         command.cmnt = content.to_string();  
                     } else if table_column.contains("author"){
                         sql_query = "UPDATE TblCommand SET author = ? where CmdID = ?";
-                        command.author = content.to_string();
-                
+                        command.author = content.to_string();               
                     } else if table_column.contains("command"){
                         sql_query = "UPDATE TblCommand SET Cmd = ? where CmdID = ?";
                         command.cmd = content.to_string();
                     } else if table_column.contains("references"){
-                        return self.add_reference_to_command(command, content).await;
+                        return self.add_reference_to_command(command.clone(), content).await;
                     } else {   
                         // display_error( "Update failed.".to_string());   
                         return Err(sqlx::Error::RowNotFound);
@@ -159,8 +158,8 @@ pub mod database {
                     let command_output: String = format!("Updated {}: {}\n\r",
                         table_column,
                         content);
-                        return Ok(command_output);
-                    // return true;
+                    
+                    return Ok(command_output);
                 } else {
                     // let error: String = format!("You must supply a value for column {}.\n\rExample: update {} content to add",
                     //     table_column,
@@ -174,7 +173,7 @@ pub mod database {
             }
 
         }
-        pub async fn add_reference_to_command(&mut self, command: &mut command_table::Command, reference: String) -> Result<String, sqlx::Error> {
+        pub async fn add_reference_to_command(&mut self, mut command: command_table::Command, reference: String) -> Result<String, sqlx::Error> {
             let ex_query = sqlx::query(
                 "INSERT INTO TblRefContent (Ref) VALUES (?)",
             )

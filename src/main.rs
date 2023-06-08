@@ -22,9 +22,10 @@ async fn main() {
         }
     };
 
+    // All output to the terminal
     let terminal_output = &mut terminal_output::output::Output::new();
    
-    //initialize search results and history for selected commands
+    // Initialize the search results and selected result history
     let mut search_results = search::search::Results::new();
 
     // Initialize the search query 
@@ -33,28 +34,30 @@ async fn main() {
     // User set variables and current command variables
     let mut variables: Variables = Variables::new();
 
-    let mut selected_command: String;
+    // Variable that affect the dynamic prompt
+    let mut selected_command_id: String;
     let mut current_mode: String;
 
     //Clear screen and print banner and truncated help when application starts
     let formatted_banner = terminal_output.get_banner_bloody();
     terminal_output.display_banner(formatted_banner);                   
-    //TODO: Add a cleaner, more consistent method for parsing and executing commands.
+    //TODO: Continue to modularize this.
     //Move most of this into terminal_actions.rs
     loop {
 
+        // Build the user prompt
         match search_results.get_current_command_id() {
-            Ok(command_id) => {
-                selected_command = command_id.to_string();
+            Some(command_id) => {
+                selected_command_id = command_id.to_string();
             }
-            Err(_error) => {
-                selected_command = String::from("");
+            None => {
+                selected_command_id = String::from("");
             }
         }
-
         current_mode = search_results.get_current_mode();
-        terminal_output.update_prompt(selected_command.clone(), current_mode.clone(), &query);
+        terminal_output.update_prompt(selected_command_id.clone(), current_mode.clone(), &query);
 
+        // Capture user input
         let key = std::io::stdin().keys().next().unwrap();
         match key {          
             Ok(Key::Ctrl('r')) => { // Ctrl + R to enter search mode and query the database as you type
@@ -64,7 +67,7 @@ async fn main() {
             }
             Ok(Key::Backspace) => {
                 query.pop();             
-                terminal_output.update_prompt( selected_command.clone(), current_mode.clone(), &query);
+                terminal_output.update_prompt( selected_command_id.clone(), current_mode.clone(), &query);
                 
                 if search_results.get_search_mode() != search::search::OFF {
 
@@ -126,7 +129,7 @@ async fn main() {
                     clipboard.set_contents(encoded.clone()).unwrap();   
 
                     terminal_output.display_command_info( search_results.get_current_command(), &mut variables);
-                    // terminal_output.display_command_info( command_history[selected_command_in_history].clone(), &mut variables);
+
                     terminal_output.display_copy_info( encoded);
                 } else {
                     terminal_output.display_error( String::from("There isn't a command currently selected."));
@@ -158,7 +161,7 @@ async fn main() {
             },            
             Ok(Key::Char(c)) if c != '\n'  => { 
                 query.push(c);
-                terminal_output.update_prompt( selected_command.clone(), current_mode.clone(), &query);
+                terminal_output.update_prompt( selected_command_id.clone(), current_mode.clone(), &query);
 
                 if search_results.get_search_mode() != search::search::OFF {
                     if query.len() > 0 {

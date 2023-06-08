@@ -99,21 +99,19 @@ pub mod search {
             self.history.clone()
         }
 
-        pub fn get_current_command_id (&mut self) -> Result<i32, Box<dyn std::error::Error>> {
+        pub fn get_current_command_id (&mut self) -> Option<i32> {
             if !self.history.is_empty() {
-                return Ok(self.history[self.selected_history_index as usize].cmd_id);
-
+                Some(self.history[self.selected_history_index as usize].cmd_id)
             } else {
-                return Err("".into());
+                None
             }            
         }
 
-        pub fn get_current_command_syntax (&mut self) -> Result<String, Box<dyn std::error::Error>> {
+        pub fn get_current_command_syntax (&mut self) -> Option<String> {
             if !self.history.is_empty() {
-                return Ok(self.history[self.selected_history_index as usize].cmd.clone());
-
+                Some(self.history[self.selected_history_index as usize].cmd.clone())
             } else {
-                return Err("".into());
+                None
             }            
         }
 

@@ -44,7 +44,7 @@ async fn main() {
 
     loop {
 
-        // Build the user prompt
+        // Build the command prompt
         match search_results.get_current_command_id() {
             Some(command_id) => {
                 selected_command_id = command_id.to_string();

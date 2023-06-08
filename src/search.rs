@@ -139,7 +139,7 @@ pub mod search {
             let mut current_mode: String = String::from("");
 
             if self.search_mode != -1 { 
-                current_mode = format!("find[{}]",SEARCH_MODES[self.search_mode as usize]);
+                current_mode = format!("search->{}s",SEARCH_MODES[self.search_mode as usize]);
             } else if self.history_mode {
                 current_mode = "history".to_string();
             }            

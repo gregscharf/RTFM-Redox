@@ -6,7 +6,7 @@ pub mod search {
     //Various search modes to cycle through with Crtl+r
     pub(crate) const COMMAND_SEARCH: i32 = 0;
     pub(crate) const COMMENT_SEARCH: i32 = 1;
-    pub(crate) const TAG_SEARCH: i32 = 2;
+    pub(crate) const _TAG_SEARCH: i32 = 2;
     pub(crate) const SEARCH_MODES: [&str; 2] = ["command","comment"];
     pub(crate) const SEARCH_COLUMNS: [&str; 2] = ["Cmd","cmnt"];
     pub(crate) const UP: i32 = 1;
@@ -15,8 +15,7 @@ pub mod search {
     #[derive(Clone)]
     pub struct Results {
         pub results: Vec<command_table::Command>,
-        pub history: Vec<command_table::Command>,
-        pub current_selection: usize, 
+        pub history: Vec<command_table::Command>,        
         pub search_mode: i32,
         pub history_mode: bool,
         pub results_selection_mode: bool,
@@ -31,14 +30,23 @@ pub mod search {
             Self {
                 //Create a history for selected commands
                 history: Vec::new(),
+
+                //Current list of search results
                 results: Vec::new(),
-                current_selection: 0,
+                
+                //For ON/Off and current sub mode for either commands or comments
                 search_mode: -1,
+
+                //Indicator for history mode search ON/OFF
                 history_mode: false,
+
+                //Index of selected search result or history command
                 selected_result_index: -1,
                 selected_history_index: -1,
+
+                //Indicator for whether the user is arrowing through returned results
                 results_selection_mode: false,
-                search_modes: vec![COMMAND_SEARCH,COMMENT_SEARCH,TAG_SEARCH],
+                search_modes: vec![COMMAND_SEARCH,COMMENT_SEARCH],
             }
         }
 
@@ -143,10 +151,10 @@ pub mod search {
             terminal_output.highlight_search_result(self.selected_result_index as usize, self.results.clone()); 
         }
 
-        //To cycle the search mode when repeatedly pressing Ctrl+r
+        //To cycle the search mode when pressing Ctrl+r
         pub fn cycle_search_mode(&mut self) {
             self.search_mode += 1;
-            let search_mode_index = self.search_mode % (self.search_modes.len() as i32 - 1);
+            let search_mode_index = self.search_mode % self.search_modes.len() as i32;
             self.search_mode = self.search_modes[search_mode_index as usize];
         }
 

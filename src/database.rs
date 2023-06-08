@@ -77,6 +77,7 @@ pub mod database {
                             cmnt: cmnt.clone(),
                             author: author.clone(),
                             references: Vec::new(),
+                            tags: Vec::new(),
                         };
                         commands.push(new_command);
                         commands.last_mut().unwrap()
@@ -121,7 +122,7 @@ pub mod database {
                 .unwrap();
 
             let row_id = ex_query.last_insert_rowid();
-            let new_command = command_table::Command { cmd_id: row_id as i32, cmd: command.to_string(), cmnt: description.to_string(), author: String::from(""), references: Vec::new() };
+            let new_command = command_table::Command { cmd_id: row_id as i32, cmd: command.to_string(), cmnt: description.to_string(), author: String::from(""), references: Vec::new(), tags: Vec::new() };
             
             self.commands.push(new_command.clone());           
             Ok(self.commands.clone())      
@@ -198,8 +199,8 @@ pub mod database {
 
             let command_output: String = format!("Added {} to references\n\r",
                 reference);
-            return Ok(command_output);  
-            // Ok(self.commands.clone())
+
+            Ok(command_output)  
         }        
 
     }
@@ -214,12 +215,19 @@ pub mod command_table {
         pub cmnt: String,
         pub author: String,
         pub references: Vec<References>,
+        pub tags: Vec<Tags>,
     }
     
     #[derive(Clone)]
     pub struct References {
         pub ref_id: i32,
         pub ref_value: String,
+    }
+
+    #[derive(Clone)]
+    pub struct Tags {
+        pub tag_id: i32,
+        pub tag_value: String,
     }
 
     // impl Command {

@@ -59,25 +59,22 @@ sudo apt install libxcb1-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0
 
 ## To Add
 - [x] After adding a new command to the db select it as the current command.
-- [ ] Search checks against both command and comment field?
+- [X] Search checks against both command and comment field via Ctrl+r toggle search mode
 - [ ] Continue updating database with newer commands for things like Crackmapexec,ffuf,feroxbuster,Rubeus,Impacket, etc.
 - [ ] Update command reference links to better and more up to date content, preferably adding links to video content when possible.
 - [ ] Display ids next to references so that if necessary they can be deleted from the db through the redox CLI.  
 - [ ] Add config file to store user set variables and other as yet to be determined configurations.
     - This might be the place for related commands that are often used together. Add ability to save the commands in the current history.  Would need a way to quickly delete a command in the current history e.g. highlight the command and then Ctrl+d to remove it. Also need to be able to completely clear the current history.  User would also need to supply a name for the history before it is saved to the config file.  These would be stored as an array of row IDs from TblCommand. Use the 'config' crate to facilitate this.  
 - [ ] Ctrl+d while in selectable list deletes the item from the database, or if in history mode, deletes the item from the current history.
-- [ ] Add a local references option via the soon to be added config file for links to notes on the local filesystem.
+- [ ] Add a local references option via the soon to be added config file for references to notes on the local filesystem.
 - [ ] Left/right arrow keys to edit already typed or pasted in command.  Really only useful when typing a long command to add to or update the database.
 - [ ] Make use of tags already implemented in the database to display selectable list of grouped items. For example, 'reverse shells linux' to display all commands in the database grouped under that tag.  At the moment, tags already in the database are probably a little too general to be useful e.g. 'bash', 'windows'.  Also need a function to display all tags in the database as a selectable list.
 - [ ] Implement [RTFM](https://github.com/leostat/rtfm)'s solution for creating/updating the database
-- [ ] Tab auto complete for best match while in search mode.
 - [ ] Switch from termion to crossterm for Windows support.
-- [ ] Use pre-existing 'refs' table to link to markdown notes and display notes in terminal when selected.
 
 ## To Fix
 - [x] Add buffer to scroll through result output that doesn't fit within terminal windows.
 - [x] Handle error when output exceeds terminal window so application doesn't crash on Arch.
-    - Needs a much better solution
 - [ ] Sometimes backspace/delete key requires Ctrl+Backspace/Delete to delete typed character preceding cursor.
 - [ ] Switch from termion to crossterm to add support for Windows consoles.      
 - [ ] Switch to rusqlite and dump sqlx to avoid openssl static build nightmare to allow for release builds.

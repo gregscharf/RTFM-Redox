@@ -2,20 +2,26 @@ use crate::database::command_table;
 use crate::database::database;
 use crate::terminal_output;
 
-pub async fn execute_search(search_column: String, search_term: String, database: &mut database::Database) -> Vec<command_table::Command>{
+pub async fn execute_search(search_column: String, search_term: String, database: &mut database::Database) -> Option<Vec<command_table::Command>>{
     let terminal_output = &mut terminal_output::output::Output::new();
+
+    let command_values: Vec<&str> = search_term.split_whitespace().collect();
+    if command_values.len() < 2 {
+        terminal_output.display_error("No search term entered".to_string());
+        return None;
+    }
     
     let mut command_results: Vec<command_table::Command>;
-
     command_results = database.search_commands(search_column,&search_term).await; 
        
     if !command_results.is_empty() {
         terminal_output.display_selectable_list(&mut command_results);
     } else {
         terminal_output.display_error(format!("No results found for {}", search_term));
+        return None;
     }   
 
-    command_results
+    Some(command_results)
 }
 
 pub async fn execute_help(command: String) {

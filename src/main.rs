@@ -39,10 +39,9 @@ async fn main() {
     let mut current_mode: String;
 
     //Clear screen and print banner and truncated help when application starts
-    let formatted_banner = terminal_output.get_banner_bloody();
-    terminal_output.display_banner(formatted_banner);                   
-    //TODO: Continue to modularize this.
-    //Move most of this into terminal_actions.rs
+    let formatted_banner = terminal_output.get_banner_speedy();
+    terminal_output.display_banner(formatted_banner);    
+
     loop {
 
         // Build the user prompt
@@ -74,7 +73,12 @@ async fn main() {
                     terminal_output.clear_display();
                     
                     if query.len() > 0 { 
-                        search_results.set_results(execute_search(search_results.clone().get_search_column(), format!("search {}", query), &mut database).await);
+                        match execute_search(search_results.clone().get_search_column(), format!("search {}", query), &mut database).await {
+                            Some(results) => {
+                                search_results.set_results(results);
+                            } 
+                            _ => {}
+                        }
                     } else {
                         let formatted_banner = terminal_output.get_banner_speedy();
                         terminal_output.display_banner(formatted_banner);  
@@ -165,7 +169,13 @@ async fn main() {
 
                 if search_results.get_search_mode() != search::search::OFF {
                     if query.len() > 0 {
-                        search_results.set_results(execute_search(search_results.clone().get_search_column(), format!("search {}", query), &mut database).await);
+                        // search_results.set_results(execute_search(search_results.clone().get_search_column(), format!("search {}", query), &mut database).await);
+                        match execute_search(search_results.clone().get_search_column(), format!("search {}", query), &mut database).await {
+                            Some(results) => {
+                                search_results.set_results(results);
+                            } 
+                            _ => {}
+                        }                    
                     }
                 }
             }            
@@ -177,8 +187,7 @@ async fn main() {
 
                 query.clear();
 
-                let formatted_banner = terminal_output.get_banner_speedy();
-                terminal_output.display_banner(formatted_banner);                                         
+                execute_help("".to_string()).await;                                        
             }
             Ok(Key::Ctrl('h')) => {// Display selectable list of commands from history
                 let command_history = search_results.get_history();
@@ -296,8 +305,6 @@ async fn main() {
                     } else {
                         terminal_output.display_error( String::from("History is currently empty."));
                     }
-                } else if query.starts_with("env"){ //show user set variables
-                    terminal_output.display_user_variables( &mut variables);    
                 } else if query.starts_with("set") { //set variables
                     terminal_output.clear_display();
  
@@ -309,12 +316,13 @@ async fn main() {
                             terminal_output.display_error( "You must supply a value".to_string());
                         }
 
+                        //FIX: Code below duplicated in "info" command
                         let results = search_results.get_selected_history_command();
                         match results {
                             Ok(command) => {
-                                terminal_output.display_command_info( command, &mut variables);
+                                terminal_output.display_command_info( command.clone(), &mut variables);
 
-                                let command_syntax = variables.replace_variables_in_command(&search_results.get_current_command_syntax().unwrap());
+                                let command_syntax = variables.replace_variables_in_command(&command.cmd.to_string());
 
                                 let mut clipboard = ClipboardContext::new().unwrap();
                                 clipboard.set_contents(command_syntax.clone()).unwrap();
@@ -334,10 +342,10 @@ async fn main() {
                     let results = search_results.get_selected_history_command();
                     match results {
                         Ok(command) => {
-                            terminal_output.display_command_info( command, &mut variables);
+                            terminal_output.display_command_info( command.clone(), &mut variables);
 
-                            let command_syntax = variables.replace_variables_in_command(&search_results.get_current_command_syntax().unwrap());
-
+                            let command_syntax = variables.replace_variables_in_command(&command.cmd.to_string());
+                            
                             let mut clipboard = ClipboardContext::new().unwrap();
                             clipboard.set_contents(command_syntax.clone()).unwrap();
     
@@ -349,9 +357,18 @@ async fn main() {
                     }   
 
                 } else if query.starts_with("search") { 
-                    search_results.set_results(execute_search(search_results.clone().get_search_column(), format!("{}", query), &mut database).await);           
+                    // search_results.set_results(execute_search(search_results.clone().get_search_column(), format!("{}", query), &mut database).await);           
+                    let column = "Cmd";
+                    match execute_search(column.to_string(), format!("{}", query), &mut database).await {
+                        Some(results) => {
+                            search_results.set_results(results);
+                        } 
+                        _ => {}
+                    }
                 } else if query.starts_with("help") {
-                    execute_help(query.clone()).await;      
+                    execute_help(query.clone()).await;    
+                } else if query.starts_with("env"){ //show user set variables                   
+                    terminal_output.display_user_variables( &mut variables);                        
                 } else if query.starts_with("exit") {
                     break;
                 } else {

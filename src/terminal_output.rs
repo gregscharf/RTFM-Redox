@@ -10,7 +10,7 @@ pub mod output {
         //Leave some space at top of terminal for dynamic search and long comments
         buffer_from_top: usize,  
         
-        ascii_banner_bloody: String,
+        _ascii_banner_bloody: String,
         ascii_banner_speedy: String,
     }
 
@@ -19,7 +19,7 @@ pub mod output {
         pub fn new() -> Self {           
             let stdout = stdout().into_raw_mode().unwrap();
             let buffer_from_top = 8;
-            let ascii_banner_bloody = format!(
+            let _ascii_banner_bloody = format!(
                 r#"   
                 ██▀███  ▓█████ ▓█████▄  ▒█████  ▒██   ██▒
                 ▓██ ▒ ██▒▓█   ▀ ▒██▀ ██▌▒██▒  ██▒▒▒ █ █ ▒░
@@ -43,15 +43,15 @@ pub mod output {
                 /_/ |_|  \___/ \__,_/   \____/  /_/|_|  
                 "#,
             );
-            Output { stdout,buffer_from_top, ascii_banner_bloody, ascii_banner_speedy }
+            Output { stdout,buffer_from_top, _ascii_banner_bloody, ascii_banner_speedy }
         }
 
         pub fn get_banner_speedy (&mut self) -> String {
             self.format_banner(self.ascii_banner_speedy.clone())
         }
 
-        pub fn get_banner_bloody (&mut self) -> String {
-            self.format_banner(self.ascii_banner_bloody.clone())
+        pub fn _get_banner_bloody (&mut self) -> String {
+            self.format_banner(self._ascii_banner_bloody.clone())
         }
 
         pub fn format_banner(&mut self, banner: String) -> String{

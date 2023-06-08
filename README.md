@@ -11,7 +11,8 @@ I'm currently using the sqlite database that [RTFM](https://github.com/leostat/r
 
 ## Usage
 ```
-Ctrl+r           Enter quick search mode to dynamically find commands as you type.
+Ctrl+r           Cycle through search options to dynamically find commands as you type.
+                 Allows searching within commands and comments.
 Ctrl+c           Copy currently selected command to clipboard.
 Ctrl+u           URL-encode and then copy currently selected command to clipboard.
 Crtl+h or hist   Display selectable history of already selected commands.

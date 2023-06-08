@@ -25,10 +25,11 @@ pub mod database {
                 Err(error) => {
                     return Err(SqlxError::from(error));
                 }
-            };            
-            let commands: Vec<command_table::Command> = Vec::new();
-            Ok(Self { db_url, db, commands })
+            };  
 
+            let commands: Vec<command_table::Command> = Vec::new();
+
+            Ok(Self { db_url, db, commands })
         }
 
         // pub async fn fetch_commands(&mut self, search_term: String) -> Result<Vec<command_table::Command>, sqlx::Error> {
@@ -44,16 +45,18 @@ pub mod database {
         //     commands
         // }   
 
-        pub async fn fetch_commands_with_references(&mut self, search_term: String) -> Result<Vec<command_table::Command>, sqlx::Error> {
-            let rows = sqlx::query(
+        pub async fn fetch_commands_with_references(&mut self, column: String, search_term: String) -> Result<Vec<command_table::Command>, sqlx::Error> {
+            let sql_query = format!(
                 "SELECT TblCommand.CmdID, TblCommand.Cmd, TblCommand.cmnt, TblCommand.author, TblRefContent.ID, TblRefContent.Ref
                 FROM TblCommand
                 LEFT JOIN TblRefMap ON TblCommand.CmdID = TblRefMap.CmdID
                 LEFT JOIN TblRefContent ON TblRefMap.RefID = TblRefContent.ID
-                WHERE Cmd LIKE ?",
-            ).bind(search_term)
-            .fetch_all(self.db.as_ref().ok_or(SqlxError::RowNotFound)?)
-            .await?;
+                WHERE {} LIKE ?", column);
+            
+            let rows = sqlx::query(&sql_query,)
+                .bind(search_term)
+                .fetch_all(self.db.as_ref().ok_or(SqlxError::RowNotFound)?)
+                .await?;
         
             let mut commands: Vec<command_table::Command> = Vec::new();
         
@@ -87,11 +90,11 @@ pub mod database {
             Ok(commands)
         }
 
-        pub async fn search_commands(&mut self, query: &String) -> Vec<command_table::Command>{     
+        pub async fn search_commands(&mut self, column: String, query: &String) -> Vec<command_table::Command>{     
             let start_index: usize = "search ".len();
             let search_term: String = format!("%{}%",&query[start_index..]); 
 
-            self.commands = self.fetch_commands_with_references(search_term).await.unwrap();           
+            self.commands = self.fetch_commands_with_references(column, search_term).await.unwrap();           
             self.commands.clone()
         }
 

@@ -7,7 +7,8 @@ pub mod search {
     pub(crate) const COMMAND_SEARCH: i32 = 0;
     pub(crate) const COMMENT_SEARCH: i32 = 1;
     pub(crate) const TAG_SEARCH: i32 = 2;
-    pub(crate) const SEARCH_MODES: [&str; 3] = ["command","comment","tag"];
+    pub(crate) const SEARCH_MODES: [&str; 2] = ["command","comment"];
+    pub(crate) const SEARCH_COLUMNS: [&str; 2] = ["Cmd","cmnt"];
     pub(crate) const UP: i32 = 1;
     pub(crate) const DOWN: i32 = -1;
 
@@ -26,7 +27,7 @@ pub mod search {
 
     impl Results {
         pub fn new() -> Self {
-            // Load user variables from config file
+            //TODO: Save/Load user variables from config file
             Self {
                 //Create a history for selected commands
                 history: Vec::new(),
@@ -86,6 +87,10 @@ pub mod search {
             self.search_mode
         }
         
+        pub fn get_search_column(&mut self) -> String {
+            SEARCH_COLUMNS[self.search_mode as usize].to_string()
+        }
+
         pub fn get_results_selection_mode(&mut self) -> bool {
             self.results_selection_mode
         }
@@ -142,7 +147,8 @@ pub mod search {
 
         //To cycle the search mode when repeatedly pressing Ctrl+r
         pub fn cycle_search_mode(&mut self) {
-            let search_mode_index = (self.search_mode + 1) % self.search_modes.len() as i32;
+            self.search_mode += 1;
+            let search_mode_index = self.search_mode % (self.search_modes.len() as i32 - 1);
             self.search_mode = self.search_modes[search_mode_index as usize];
         }
 

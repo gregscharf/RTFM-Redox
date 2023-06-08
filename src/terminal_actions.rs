@@ -2,12 +2,12 @@ use crate::database::command_table;
 use crate::database::database;
 use crate::terminal_output;
 
-
-pub async fn execute_search(search_term: String, database: &mut database::Database) -> Vec<command_table::Command>{
+pub async fn execute_search(search_column: String, search_term: String, database: &mut database::Database) -> Vec<command_table::Command>{
     let terminal_output = &mut terminal_output::output::Output::new();
+    
     let mut command_results: Vec<command_table::Command>;
 
-    command_results = database.search_commands(&search_term).await; 
+    command_results = database.search_commands(search_column,&search_term).await; 
        
     if !command_results.is_empty() {
         terminal_output.display_selectable_list(&mut command_results);
@@ -18,7 +18,6 @@ pub async fn execute_search(search_term: String, database: &mut database::Databa
     command_results
 }
 
-
 pub async fn execute_help(command: String) {
     let terminal_output = &mut terminal_output::output::Output::new();
     terminal_output.clear_display();
@@ -27,7 +26,7 @@ pub async fn execute_help(command: String) {
     let output: String;
 
     //All help commands and messages
-    let control_r:String = format!("{:<width$}Enter quick search mode to dynamically find commands as you type.",String::from("Ctrl+r"),width = min_width);
+    let control_r:String = format!("{:<width$}Cycle through search options to dynamically find commands as you type.\n\r{:<width$}Allows searching within the command or the command's comment.",String::from("Ctrl+r"),String::from(" "),width = min_width);
     let control_c: String = format!("{:<width$}Copy currently selected command to clipboard.",String::from("Ctrl+c"),width = min_width);
     let control_u: String = format!("{:<width$}URL-encode and then copy currently selected command to clipboard.",String::from("Ctrl+u"),width = min_width);
     let control_h: String = format!("{:<width$}\n\r{:<width$}Display selectable history of already selected commands.",String::from("Crtl+h"),String::from("or 'hist'"),width = min_width);

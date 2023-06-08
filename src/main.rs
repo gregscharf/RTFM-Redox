@@ -71,7 +71,7 @@ async fn main() {
                     terminal_output.clear_display();
                     
                     if query.len() > 0 { 
-                        search_results.set_results(execute_search(format!("search {}", query), &mut database).await);
+                        search_results.set_results(execute_search(search_results.clone().get_search_column(), format!("search {}", query), &mut database).await);
                     } else {
                         let formatted_banner = terminal_output.get_banner_speedy();
                         terminal_output.display_banner(formatted_banner);  
@@ -162,7 +162,7 @@ async fn main() {
 
                 if search_results.get_search_mode() != search::search::OFF {
                     if query.len() > 0 {
-                        search_results.set_results(execute_search(format!("search {}", query), &mut database).await);
+                        search_results.set_results(execute_search(search_results.clone().get_search_column(), format!("search {}", query), &mut database).await);
                     }
                 }
             }            
@@ -346,7 +346,7 @@ async fn main() {
                     }   
 
                 } else if query.starts_with("search") { 
-                    search_results.set_results(execute_search(format!("{}", query), &mut database).await);           
+                    search_results.set_results(execute_search(search_results.clone().get_search_column(), format!("{}", query), &mut database).await);           
                 } else if query.starts_with("help") {
                     execute_help(query.clone()).await;      
                 } else if query.starts_with("exit") {

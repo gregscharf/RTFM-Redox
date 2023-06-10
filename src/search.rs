@@ -7,21 +7,27 @@ pub mod search {
     pub(crate) const COMMAND_SEARCH: i32 = 0;
     pub(crate) const COMMENT_SEARCH: i32 = 1;
     pub(crate) const _TAG_SEARCH: i32 = 2;
+
+    //User friendly representation of search mode
     pub(crate) const SEARCH_MODES: [&str; 2] = ["command","comment"];
+
+    //DB representation of search mode columns 
     pub(crate) const SEARCH_COLUMNS: [&str; 2] = ["Cmd","cmnt"];
+
+    //Values for up/down arrow keys when scrolling through list
     pub(crate) const UP: i32 = 1;
     pub(crate) const DOWN: i32 = -1;
 
     #[derive(Clone)]
     pub struct Results {
-        pub results: Vec<command_table::Command>,
-        pub history: Vec<command_table::Command>,        
-        pub search_mode: i32,
-        pub history_mode: bool,
-        pub results_selection_mode: bool,
-        pub selected_result_index: i32,
-        pub selected_history_index: i32,
-        pub search_modes: Vec<i32>,
+        results: Vec<command_table::Command>,
+        history: Vec<command_table::Command>,        
+        search_mode: i32,
+        history_mode: bool,
+        results_selection_mode: bool,
+        selected_result_index: i32,
+        selected_history_index: i32,
+        search_modes: Vec<i32>,
     }
 
     impl Results {
@@ -107,24 +113,12 @@ pub mod search {
             self.history.clone()
         }
 
-        pub fn get_current_command_id (&mut self) -> Option<i32> {
-            if !self.history.is_empty() {
-                Some(self.history[self.selected_history_index as usize].cmd_id)
+        pub fn get_current_command(&mut self) -> Option<command_table::Command>{
+            if !self.results.is_empty() {
+                Some(self.results[self.selected_result_index as usize].clone())
             } else {
                 None
-            }            
-        }
-
-        pub fn get_current_command_syntax (&mut self) -> Option<String> {
-            if !self.history.is_empty() {
-                Some(self.history[self.selected_history_index as usize].cmd.clone())
-            } else {
-                None
-            }            
-        }
-
-        pub fn get_current_command(&mut self) -> command_table::Command{
-            self.results[self.selected_result_index as usize].clone()
+            }
         }
 
         pub fn get_current_history_command(&mut self) -> Option<command_table::Command> {

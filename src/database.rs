@@ -6,9 +6,8 @@ pub mod database {
 
     #[derive(Clone)]
     pub struct Database {
-        pub db_url: String,
-        pub db: Option<SqlitePool>,
-        pub commands: Vec<command_table::Command>
+        db: Option<SqlitePool>,
+        commands: Vec<command_table::Command>
     }
 
     impl Database {
@@ -29,7 +28,7 @@ pub mod database {
 
             let commands: Vec<command_table::Command> = Vec::new();
 
-            Ok(Self { db_url, db, commands })
+            Ok(Self { db, commands })
         }
 
         // pub async fn fetch_commands(&mut self, search_term: String) -> Result<Vec<command_table::Command>, sqlx::Error> {
@@ -207,6 +206,8 @@ pub mod database {
 }
 
 pub mod command_table {
+    use crate::command_variables;
+
     // use sqlx::Row;
     #[derive(Clone)]
     pub struct Command {
@@ -230,25 +231,34 @@ pub mod command_table {
         pub tag_value: String,
     }
 
-    // impl Command {
-    //     pub fn from_row(row: &sqlx::sqlite::SqliteRow) -> Result<Self, sqlx::Error> {
-    //         let cmd_id: i32 = row.get("CmdID");
-    //         let cmd: String = row.get("Cmd");
-    //         let cmnt: String = row.get("cmnt");
-    //         let author: String = row.get("author");
-    //         let references: Vec<References> = Vec::new();
-    //         Ok(Command { cmd_id, cmd, cmnt, author, references })
-    //     }
-    // }
-    
-    // impl References {
-    //     pub fn from_row(row: &sqlx::sqlite::SqliteRow) -> Result<Self, sqlx::Error> {
-    //         let ref_id: i32 = row.get("ID");
-    //         let ref_value: String = row.get("Ref");
-    //         Ok(References { ref_id, ref_value })
-    //     }
-    // }
+    impl Command {
+        pub fn url_encode(&mut self, command_variables: command_variables::variables::Variables) -> String {
+            let mut encoded = String::new(); 
+            
+            let command_syntax = command_variables.clone().replace_variables_in_command(&self.cmd);
 
+            for byte in command_syntax.bytes() {
+                match byte {
+                    // Alphanumeric characters and a few special characters are not encoded
+                    b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'-' | b'_' | b'.' | b'~' => {
+                        encoded.push(byte as char);
+                    }
+                    // Percent-encoded all other characters
+                    _ => {
+                        encoded.push('%');
+                        encoded.push_str(&format!("{:02X}", byte));
+                    }
+                }
+            }
+
+            encoded
+        }
+
+        pub fn set_command_variables (&mut self, command_variables: command_variables::variables::Variables) -> String {
+            command_variables.clone().replace_variables_in_command(&self.cmd)
+        }
+
+    }
 }
 
 

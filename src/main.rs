@@ -45,9 +45,9 @@ async fn main() {
     loop {
 
         // Build the command prompt
-        match search_results.get_current_command_id() {
-            Some(command_id) => {
-                selected_command_id = command_id.to_string();
+        match search_results.get_current_command() {
+            Some(command) => {
+                selected_command_id = command.cmd_id.to_string()
             }
             None => {
                 selected_command_id = String::from("");
@@ -110,28 +110,14 @@ async fn main() {
                 if command_history.len() > 0 {
                     terminal_output.clear_display();
 
-                    let command = variables.replace_variables_in_command(&search_results.get_current_command_syntax().unwrap());
-
-                    let mut encoded = String::new(); 
-                    //FIX: Move to Command module               
-                    for byte in command.bytes() {
-                        match byte {
-                            // Alphanumeric characters and a few special characters are not encoded
-                            b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'-' | b'_' | b'.' | b'~' => {
-                                encoded.push(byte as char);
-                            }
-                            // Percent-encoded all other characters
-                            _ => {
-                                encoded.push('%');
-                                encoded.push_str(&format!("{:02X}", byte));
-                            }
-                        }
-                    }
+                    let command = search_results.get_current_command().unwrap();
+                    
+                    let encoded = command.clone().url_encode(variables.clone());
 
                     let mut clipboard = ClipboardContext::new().unwrap();
                     clipboard.set_contents(encoded.clone()).unwrap();   
 
-                    terminal_output.display_command_info( search_results.get_current_command(), &mut variables);
+                    terminal_output.display_command_info( command, &mut variables);
 
                     terminal_output.display_copy_info( encoded);
                 } else {
@@ -143,11 +129,14 @@ async fn main() {
                 if command_history.len() > 0 {
                     terminal_output.clear_display();
 
-                    let command_syntax = variables.replace_variables_in_command(&search_results.get_current_command_syntax().unwrap());
+                    let command = search_results.get_current_command().unwrap();
+                    
+                    let command_syntax = command.clone().set_command_variables(variables.clone());
+
                     let mut clipboard = ClipboardContext::new().unwrap();
                     clipboard.set_contents(command_syntax.clone()).unwrap();   
 
-                    terminal_output.display_command_info( search_results.get_current_command(), &mut variables);
+                    terminal_output.display_command_info( command, &mut variables);
 
                     terminal_output.display_copy_info( command_syntax);
                 } else {
@@ -164,6 +153,7 @@ async fn main() {
             },            
             Ok(Key::Char(c)) if c != '\n'  => { 
                 query.push(c);
+
                 terminal_output.update_prompt( selected_command_id.clone(), current_mode.clone(), &query);
 
                 if search_results.get_search_mode() != search::search::OFF {
@@ -190,10 +180,11 @@ async fn main() {
             Ok(Key::Ctrl('h')) => {// Display selectable list of commands from history
                 let command_history = search_results.get_history();
                 if command_history.len() > 0 {
-                    terminal_output.clear_display();
+
                    
                     search_results.set_results(command_history.clone());
 
+                    terminal_output.clear_display();
                     terminal_output.display_selectable_list(&mut command_history.clone());
 
                     search_results.set_history_mode(true);
@@ -213,17 +204,17 @@ async fn main() {
                             Ok(commands) => {
                                 search_results.set_results(commands);
 
-                                let command = search_results.get_current_command();
+                                let command = search_results.get_current_command().unwrap();
 
-                                let command_syntax = variables.replace_variables_in_command(&command.cmd);
+                                let command_syntax = variables.clone().replace_variables_in_command(&command.clone().cmd);
+                                
                                 let mut clipboard = ClipboardContext::new().unwrap();
                                 clipboard.set_contents(command_syntax.clone()).unwrap();
                                 
-                                search_results.add_command_to_history(command);
+                                search_results.add_command_to_history(command.clone());
 
                                 terminal_output.clear_display();
-                                terminal_output.display_command_info( search_results.get_current_command(), &mut variables);
-
+                                terminal_output.display_command_info( command, &mut variables);
                                 terminal_output.display_copy_info( command_syntax);
                             }
                             Err(sqlx_error) => {
@@ -238,9 +229,8 @@ async fn main() {
                             }
                         }    
                    } else {
-                        terminal_output.clear_display();
-
                         command_output = String::from("To add a command to the database you must include -c followed by the command\n\r-d with a description of the command is optional"); 
+                        terminal_output.clear_display();
                         terminal_output.write_output( command_output); 
                    }
  
@@ -258,7 +248,6 @@ async fn main() {
                                     search_results.add_command_to_history(command.clone());
 
                                     terminal_output.display_command_info( command, &mut variables);
-
                                     terminal_output.write_output(update_message);
                                 }
                                 Err(sqlx_error) => {
@@ -278,22 +267,23 @@ async fn main() {
                         }
                     }
                 } else if search_results.get_results_selection_mode() { //pressed enter while arrowing through selectable list
-                    let command = search_results.get_current_command();
-                    search_results.add_command_to_history(command);
+                    let mut command = search_results.get_current_command().unwrap();
                     
-                    let command_syntax = variables.replace_variables_in_command(&search_results.get_current_command_syntax().unwrap());
+                    search_results.add_command_to_history(command.clone());
+
+                    let command_syntax = command.set_command_variables(variables.clone());
+
                     let mut clipboard = ClipboardContext::new().unwrap();
                     clipboard.set_contents(command_syntax.clone()).unwrap();
 
                     terminal_output.clear_display();
-
-                    terminal_output.display_command_info( search_results.get_current_command(), &mut variables);
-
+                    terminal_output.display_command_info( command, &mut variables);
                     terminal_output.display_copy_info( command_syntax);
 
-                    search_results.set_search_mode(-1);                 
+                    search_results.set_search_mode(search::search::OFF);                 
                 } else if query.starts_with("hist") { //history command
                     terminal_output.clear_display();
+
                     let command_history = search_results.get_history();
                     if command_history.len() > 0 {
                         terminal_output.display_selectable_list(&mut command_history.clone());

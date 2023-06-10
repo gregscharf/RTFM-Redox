@@ -31,19 +31,6 @@ pub mod database {
             Ok(Self { db, commands })
         }
 
-        // pub async fn fetch_commands(&mut self, search_term: String) -> Result<Vec<command_table::Command>, sqlx::Error> {
-
-        //     let rows = sqlx::query(
-        //         "SELECT CmdID, Cmd, cmnt, author 
-        //         FROM TblCommand 
-        //         WHERE Cmd LIKE ?",   
-        //         ).bind(search_term).
-        //         fetch_all(self.db.as_ref().ok_or(SqlxError::RowNotFound)?)
-        //         .await?;
-        //     let commands: Result<Vec<command_table::Command>, sqlx::Error> = rows.iter().map(|row| command_table::Command::from_row(row)).collect();
-        //     commands
-        // }   
-
         pub async fn fetch_commands_with_references(&mut self, column: String, search_term: String) -> Result<Vec<command_table::Command>, sqlx::Error> {
             let sql_query = format!(
                 "SELECT TblCommand.CmdID, TblCommand.Cmd, TblCommand.cmnt, TblCommand.author, TblRefContent.ID, TblRefContent.Ref
@@ -127,7 +114,8 @@ pub mod database {
             Ok(self.commands.clone())      
         }
 
-        pub async fn update_command(&mut self, query: &String, command: &mut command_table::Command) -> Result<String, sqlx::Error> {
+        //TODO: This should be in the implementation for Command
+        pub async fn update_command(&mut self, query: &String, command: &mut command_table::Command) -> Result<String, sqlx::Error>  {
             let command_values: Vec<&str> = query.split_whitespace().collect();
 
             if let Some(table_column) = command_values.get(1) {
@@ -147,8 +135,7 @@ pub mod database {
                     } else if table_column.contains("references"){
                         return self.add_reference_to_command(command.clone(), content).await;
                     } else {   
-                        // display_error( "Update failed.".to_string());   
-                        return Err(sqlx::Error::RowNotFound);
+                        return Err(sqlx::Error::ColumnNotFound("Invalid column".to_string()));
                     }
         
                     sqlx::query(&sql_query)
@@ -164,18 +151,17 @@ pub mod database {
                     
                     return Ok(command_output);
                 } else {
-                    // let error: String = format!("You must supply a value for column {}.\n\rExample: update {} content to add",
-                    //     table_column,
-                    //     table_column);           
-                    // display_error(error);
-                    return Err(sqlx::Error::RowNotFound);
+                    let error: String = format!("You must supply a value for column {}.\n\rExample: update {} content to add",
+                        table_column,
+                        table_column);           
+                    return Err(sqlx::Error::ColumnNotFound(error));
                 }
             } else {
-                // display_error("You must supply a column name. See the currently selected commands's 'info'".to_string());
-                return Err(sqlx::Error::RowNotFound);
+                return Err(sqlx::Error::ColumnNotFound("You must supply a column name. See the currently selected commands's 'info'".to_string()));
             }
-
         }
+
+        //TODO: This should be in the implementation for Command
         pub async fn add_reference_to_command(&mut self, mut command: command_table::Command, reference: String) -> Result<String, sqlx::Error> {
             let ex_query = sqlx::query(
                 "INSERT INTO TblRefContent (Ref) VALUES (?)",

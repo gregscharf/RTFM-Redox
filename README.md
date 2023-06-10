@@ -1,9 +1,9 @@
 RTFM-RedOx is meant to be an easier to use and updated replacement for [RTFM](https://github.com/leostat/rtfm) (inspired by the book, Red Team Field Manual) as well as something that works similarly to [RevShells.com](https://revshells.com/).  
 
 ## Features
-- A command line interface that includes a quick search for commands and comments within the included database.  Searching on command comments is useful for something like mimikatz, where mimikatz isn't in the actual command syntax itself, but is referenced in the comments.  
+- A command line interface that includes a quick search for commands and comments within the included database.  Searching on a command's comments is useful for something like mimikatz, where mimikatz isn't in the actual command syntax itself, but is referenced in the comments.  
 - There is variable replacement similar to msfconsole.  Variables can be added to any command. 
-- It has the ability to update command syntax already in the database as well as add new commands.  
+- Update command syntax already in the database as well as add new commands.  
 - Multiple references (typically hyperlinks) can be added to commands for things like cheatsheets, explainer videos, tutorials, whatever.  
 
 The ultimate purpose of this is to eliminate the need to leave the terminal to open a note taking app or web browser to search for command syntax and usage, and to not have to repeatedly type in the same remote/local host ips, ports or urls since those are saved as variables within the CLI and automatically replaced in the command before it is copied to the clipboard.

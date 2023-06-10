@@ -33,7 +33,6 @@ pub mod variables {
             self.command_variables.entry(key).or_insert(value);
         }
 
-        //TODO: Add custom pattern matching solution rather than inefficient regex and regex crate.
         pub fn replace_variables_in_command(&mut self, command: &str) -> String {
             let re = Regex::new(r"(?i)\\?\[([^\[\]]+)\]").unwrap();
 

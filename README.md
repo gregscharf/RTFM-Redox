@@ -52,6 +52,12 @@ sudo apt install libxcb1-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0
 
 **Kali**: Sometimes the backspace/delete key requires Ctrl+Backspace/Delete to delete previous typed characters in the redox CLI. And in some cases Ctrl+h stops working, so I've added a 'hist' command for when that occurs until I figure out some of the intermittent key stroke issues. 
 
+**Kali ARM64**: The following packages are required to successfully build
+```
+sudo apt install libxcb1-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev
+sudo apt install libssl-dev
+```
+
 **Arch**: No known issues
 
 **Mac M1**: Screen flicker when using up/down arrows 

@@ -42,7 +42,7 @@ pub async fn execute_help(command: String) {
     let env: String = format!("{:<width$}Show user variables that have already been set.",String::from("env"),width = min_width);
     let set: String = format!("{:width$}Set a user variable e.g. set lhost 10.10.16.3\n\r{:<width$}Variables are case insensitive",String::from("set"),String::from(" "),width = min_width);
     let add: String = format!("{:<width$}Add a command to the database e.g. 'add -c stty raw -echo;fg'",String::from("add"),width = min_width);
-    let update: String = format!("{:<width$}Update a database column in the selected command\n\r{:<width$}e.g. comment, command, author or references\n\r{:<width$}Example: update references http://blog.gregscharf.com",String::from("update"),String::from(" "),String::from(" "), width = min_width);
+    let update: String = format!("{:<width$}Update a database column in the selected command\n\r{:<width$}e.g. comment, command, author or references\n\r{:<width$}Example: update references https://blog.gregscharf.com",String::from("update"),String::from(" "),String::from(" "), width = min_width);
     let esc: String = format!("{:<width$}Exit current mode",String::from("Esc"),width = min_width);
     let help: String = format!("{:<width$}Display help",String::from("help"),width = min_width);
     let exit: String = format!("{:<width$}Exit RedOx",String::from("Ctrl+q"),width = min_width);

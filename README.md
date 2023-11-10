@@ -1,23 +1,23 @@
 RTFM-RedOx is meant to be an easier to use and updated replacement for [RTFM](https://github.com/leostat/rtfm) (inspired by the book, Red Team Field Manual) as well as something that works similarly to [RevShells.com](https://revshells.com/).  
 
 ## Features
-- A command line interface that includes a quick search for commands and comments within the included database.  Searching on a command's comments is useful for something like mimikatz, where mimikatz isn't in the actual command syntax itself, but is referenced in the comments.  
-- There is variable replacement similar to msfconsole.  Variables can be added to any command. 
-- Update command syntax already in the database as well as add new commands.  
-- Multiple references (typically hyperlinks) can be added to commands for things like cheatsheets, explainer videos, tutorials, whatever.  
+- A Terminal User Interface that includes a local database search for commands and comments similar to using forward/reverse search in Bash.  Searching on a command's comments is useful for something like mimikatz, where mimikatz isn't in the actual command syntax itself, but is referenced in the comments.  
+- Variable replacement similar to msfconsole.  Variables can be added to any command. 
+- Create, update and delete commands already in the database.  
+- Multiple references (typically hyperlinks) can be added to commands for things like cheat sheets, explainer videos, tutorials, etc.  
 
-The ultimate purpose of this is to eliminate the need to leave the terminal to open a note taking app or web browser to search for command syntax and usage, and to not have to repeatedly type in the same remote/local host ips, ports or urls since those are saved as variables within the CLI and automatically replaced in the command before it is copied to the clipboard.
+Redox eliminates the need to leave the terminal to open notes or a web browser to search for command syntax and usage. Additionally, user set variables within the CLI are automatically injected into relevant placeholders within any command you've selected before it is copied to the clipboard. 
 
-I'm currently using the sqlite database that [RTFM](https://github.com/leostat/rtfm) uses but that hasn't been updated in almost 6 years so I'm gradually adding new commands and pushing the edited db file to the repository.    
+I'm currently using the SQLite database that [RTFM](https://github.com/leostat/rtfm) uses but that hasn't been updated in quite a few years, so I'm gradually adding new commands and pushing the edited database file to the repository.    
 
 ## Usage
 ```
 Ctrl+r           Cycle through search options to dynamically find commands as you type.
                  Allows searching within commands and comments.
-Ctrl+c           Copy currently selected command to clipboard.
-Ctrl+u           URL-encode and then copy currently selected command to clipboard.
+Ctrl+c           Copy the currently selected command to clipboard.
+Ctrl+u           URL-encode and then copy the currently selected command to clipboard.
 Crtl+h or hist   Display selectable history of already selected commands.
-Ctrl+v           Paste from clipboard
+Ctrl+v           Paste from the clipboard
 info             Display info on the currently selected command.
 env              Show user variables that have already been set.
 set              Set a user variable e.g. set lhost 10.10.16.3
@@ -25,7 +25,7 @@ add -c           Add a command to the database e.g. 'add -c nc [LHOST] [LPORT] -
 update           Update a database column in the selected command
                  e.g. comment, command, author or references
                  Example: update references http://blog.gregscharf.com
-Esc              Exit current mode.
+Esc              Exit the current mode.
 help             Display help
 Ctrl+q or exit   Exit redOx.
 ```
@@ -35,9 +35,10 @@ Ctrl+q or exit   Exit redOx.
 
 ## To Use
 ```bash
-#if you don't already have rust installed
+# If you don't already have rust installed
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
+# Clone the repo and build a release binary
 git clone https://github.com/gregscharf/RTFM-Redox.git
 cd RTFM-Redox
 cargo run --release
@@ -50,9 +51,9 @@ cargo run --release
 sudo apt install libxcb1-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev
 ```
 
-**Kali**: Sometimes the backspace/delete key requires Ctrl+Backspace/Delete to delete previous typed characters in the redox CLI. And in some cases Ctrl+h stops working, so I've added a 'hist' command for when that occurs until I figure out some of the intermittent key stroke issues. 
+**Kali**: Occasionally, the backspace/delete key requires Ctrl+Backspace/Delete to delete previously typed characters. In some cases, Ctrl+h stops working, so I've added a 'hist' command until I figure out some of the intermittent key stroke issues. 
 
-**Kali ARM64**: The following packages are required to successfully build
+**Kali ARM64**: The following packages are required to successfully build on ARM processors.
 ```
 sudo apt install libxcb1-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev
 sudo apt install libssl-dev
@@ -62,7 +63,7 @@ sudo apt install libssl-dev
 
 **Mac M1**: Screen flicker when using up/down arrows 
 
-**Windows**: Not supported because the Termion crate does not work on windows.  I'll be switching to crossterm at some point.
+**Windows - Unsupported**: : The Termion crate is not compatible with windows.  I'll be switching to the Windows compatible Crossterm crate at some point.
 
 
 ## To Add

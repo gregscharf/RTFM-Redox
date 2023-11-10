@@ -180,7 +180,6 @@ async fn main() {
             Ok(Key::Ctrl('h')) => {// Display selectable list of commands from history
                 let command_history = search_results.get_history();
                 if command_history.len() > 0 {
-
                    
                     search_results.set_results(command_history.clone());
 

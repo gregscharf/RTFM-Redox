@@ -142,7 +142,7 @@ async fn main() {
                 } else {
                     terminal_output.display_error( String::from("There isn't a command currently selected."));
                 }                  
-            },                     
+            }           
             Ok(Key::Ctrl('v')) => {// Paste text from the clipboard            
                 let mut clipboard = ClipboardContext::new().unwrap();               
                 if let Ok(text) = clipboard.get_contents() {

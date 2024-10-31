@@ -32,17 +32,17 @@ pub async fn execute_help(command: String) {
     let output: String;
 
     //All help commands and messages
-    let control_r:String = format!("{:<width$}Cycle through search options to dynamically find commands as you type.\n\r{:<width$}Allows searching within the command or the command's comment.",String::from("Ctrl+r"),String::from(" "),width = min_width);
-    let control_c: String = format!("{:<width$}Copy currently selected command to clipboard.",String::from("Ctrl+c"),width = min_width);
-    let control_u: String = format!("{:<width$}URL-encode and then copy currently selected command to clipboard.",String::from("Ctrl+u"),width = min_width);
+    let control_r:String = format!("{:<width$}Activates a dynamic search for a command or a command comment as you type.\n\r{:<width$}Click Ctrl+r repeatedly to cycle between command search or comment search.",String::from("Ctrl+r"),String::from(" "),width = min_width);
+    let control_c: String = format!("{:<width$}Copy the selected command to the clipboard.",String::from("Ctrl+c"),width = min_width);
+    let control_u: String = format!("{:<width$}URL-encode and then copy the selected command to the clipboard.",String::from("Ctrl+u"),width = min_width);
     let control_h: String = format!("{:<width$}Display selectable history of already selected commands.",String::from("Crtl+h"),width = min_width);
     let hist: String = format!("{:<width$}Same as Crtl+h",String::from("hist"),width = min_width);
-    let control_v: String = format!("{:<width$}Paste from clipboard",String::from("Crtl+v"),width = min_width);
-    let info: String = format!("{:<width$}Display info on the currently selected command.",String::from("info"),width = min_width);
+    let control_v: String = format!("{:<width$}Paste from the clipboard. Note: Your terminal's native paste key combination will not work.",String::from("Crtl+v"),width = min_width);
+    let info: String = format!("{:<width$}Display info on the selected command.",String::from("info"),width = min_width);
     let env: String = format!("{:<width$}Show user variables that have already been set.",String::from("env"),width = min_width);
-    let set: String = format!("{:width$}Set a user variable e.g. set lhost 10.10.16.3\n\r{:<width$}Variables are case insensitive",String::from("set"),String::from(" "),width = min_width);
-    let add: String = format!("{:<width$}Add a command to the database e.g. 'add -c stty raw -echo;fg'",String::from("add"),width = min_width);
-    let update: String = format!("{:<width$}Update a database column in the selected command\n\r{:<width$}e.g. comment, command, author or references\n\r{:<width$}Example: update references https://blog.gregscharf.com",String::from("update"),String::from(" "),String::from(" "), width = min_width);
+    let set: String = format!("{:width$}Set a user variable Example: set lhost 10.10.16.3\n\r{:<width$}Variables are case insensitive",String::from("set"),String::from(" "),width = min_width);
+    let add: String = format!("{:<width$}Add a command to the database Example: add -c stty raw -echo;fg",String::from("add"),width = min_width);
+    let update: String = format!("{:<width$}Update a database column (i.e. comment, command, author, and references) in the selected command\n\r{:<width$}.\n\r{:<width$}Example: update references https://blog.gregscharf.com",String::from("update"),String::from(" "),String::from(" "), width = min_width);
     let esc: String = format!("{:<width$}Exit current mode",String::from("Esc"),width = min_width);
     let help: String = format!("{:<width$}Display help",String::from("help"),width = min_width);
     let exit: String = format!("{:<width$}Exit RedOx",String::from("Ctrl+q"),width = min_width);
